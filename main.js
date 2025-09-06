@@ -3,8 +3,15 @@ const path = require("path");
 
 function createWindow() {
   const win = new BrowserWindow({
-    width: 1200,
-    height: 800,
+    // Use content size so the width/height refer to the web page content area
+    // (this prevents window chrome from reducing the available content area).
+    width: 1380,
+    // Use content height requested by user
+    height: 768,
+    useContentSize: true,
+    resizable: false,
+    maximizable: false,
+    fullscreenable: false,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       contextIsolation: true,
@@ -20,6 +27,37 @@ function createWindow() {
     {
       label: "File",
       submenu: [{ role: "quit" }],
+    },
+    {
+      label: "Print",
+      click: () => {
+        // Only send to still-alive windows to avoid 'Render frame was disposed' errors
+        const allWindows = BrowserWindow.getAllWindows().filter(
+          (w) =>
+            !w.isDestroyed() && w.webContents && !w.webContents.isDestroyed()
+        );
+        allWindows.forEach((w) => {
+          try {
+            w.webContents.send("menu-print");
+          } catch (e) {
+            // ignore send failures from disposed frames
+          }
+        });
+      },
+    },
+    {
+      label: "Snip",
+      click: () => {
+        const allWindows = BrowserWindow.getAllWindows().filter(
+          (w) =>
+            !w.isDestroyed() && w.webContents && !w.webContents.isDestroyed()
+        );
+        allWindows.forEach((w) => {
+          try {
+            w.webContents.send("menu-snip");
+          } catch (e) {}
+        });
+      },
     },
     {
       label: "Edit",
@@ -98,6 +136,19 @@ ipcMain.on("open-image-dialog-from-menu", async (event) => {
   }
 });
 
+// IPC handler for snipping tool
+const { exec } = require("child_process");
+ipcMain.on("start-snip", async (event) => {
+  // Try launching Windows Snipping Tool (Windows 10/11)
+  exec("SnippingTool.exe", (error) => {
+    if (error) {
+      // Fallback: Try Snip & Sketch (Windows 10+)
+      exec("explorer.exe ms-screenclip:");
+    }
+  });
+  // User can paste the result into the app
+});
+
 // IPC handler for saving as PDF
 ipcMain.handle("save-as-pdf", async (event, options) => {
   const win = BrowserWindow.getFocusedWindow();
@@ -130,16 +181,34 @@ ipcMain.handle("save-as-pdf", async (event, options) => {
       ...options,
     });
     fs.writeFileSync(filePath, pdfData);
-    event.sender.send("pdf-saved", { success: true, filePath });
-    // Trigger native print dialog after saving
-    win.webContents.print({
-      silent: false,
-      printBackground: true,
-      landscape: true,
-    });
+    // Send pdf-saved to the window's webContents (avoid event.sender which may be disposed)
+    try {
+      if (
+        win &&
+        !win.isDestroyed() &&
+        win.webContents &&
+        !win.webContents.isDestroyed()
+      ) {
+        win.webContents.send("pdf-saved", { success: true, filePath });
+      }
+    } catch (e) {
+      // ignore send failures
+    }
     return { success: true, filePath };
   } catch (error) {
-    event.sender.send("pdf-saved", { success: false, error: error.message });
+    try {
+      if (
+        win &&
+        !win.isDestroyed() &&
+        win.webContents &&
+        !win.webContents.isDestroyed()
+      ) {
+        win.webContents.send("pdf-saved", {
+          success: false,
+          error: error.message,
+        });
+      }
+    } catch (e) {}
     return { success: false, error: error.message };
   }
 });

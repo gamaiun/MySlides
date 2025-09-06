@@ -7,4 +7,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
     ipcRenderer.on("open-image-dialog-from-menu", callback),
   saveAsPDF: (options) => ipcRenderer.invoke("save-as-pdf", options),
   onPDFSaved: (callback) => ipcRenderer.on("pdf-saved", callback),
+  startSnip: () => ipcRenderer.send("start-snip"),
+  onMenuPrint: (callback) => ipcRenderer.on("menu-print", callback),
+  onMenuSnip: (callback) => ipcRenderer.on("menu-snip", callback),
 });

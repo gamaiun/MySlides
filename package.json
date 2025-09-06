@@ -25,5 +25,8 @@
     "type": "git",
     "url": "https://github.com/gamaiun/MySlides.git"
   },
-  "icon": "icon.ico"
+  "icon": "icon.ico",
+  "dependencies": {
+    "screenshot-desktop": "^1.15.2"
+  }
 }
