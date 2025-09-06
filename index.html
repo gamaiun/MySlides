@@ -13,24 +13,11 @@
           padding: 0 !important;
           overflow: hidden !important;
         }
-        #printBtn {
-          visibility: hidden !important;
-        }
-        #datetimeHeader {
-          display: block !important;
-          position: static !important;
-          margin-top: 0.5cm !important;
-          margin-bottom: 0.3cm !important;
-        }
-        .controls {
-          margin-bottom: 0.3cm !important;
-        }
         #layout {
           width: 100% !important;
           height: 100% !important;
           max-width: 100% !important;
           max-height: 100% !important;
-          min-height: 0 !important;
           margin: 0 !important;
           padding: 0 !important;
           box-sizing: border-box !important;
@@ -46,6 +33,15 @@
           margin: 0 !important;
           padding: 0 !important;
           box-sizing: border-box !important;
+          display: flex !important;
+          justify-content: flex-end !important; /* Snap image to the right */
+          align-items: flex-end !important; /* Snap image to the bottom */
+        }
+        #imageContainer img {
+          width: 100% !important; /* Ensure the image always occupies full width */
+          height: auto !important; /* Maintain aspect ratio */
+          object-fit: contain !important; /* Ensure the entire image is visible */
+          padding-right: 220px !important; /* Add padding to push the image left */
         }
       }
       @page {
@@ -64,6 +60,8 @@
         padding: 8px 40px 40px 40px;
         display: flex;
         flex-direction: column;
+        background-color: white; /* Change background to white */
+        color: black; /* Ensure text is visible on white background */
       }
       #layout {
         border: none;
@@ -100,7 +98,7 @@
       #imageContainer {
         /* slightly increase width (6%) to use spare space on the right (was 4%) */
         width: calc(100% + 6%);
-        height: 656px; /* reduced earlier */
+        height: calc(656px * 1.16); /* Increase height by an additional 1% */
         /* allow it to grow slightly beyond parent width */
         max-width: calc(100% + 6%);
         background: #f9f9f9;
@@ -110,6 +108,10 @@
         position: relative;
         box-sizing: border-box;
         flex: 0 0 auto;
+        padding: 0 !important;
+        display: flex;
+        justify-content: center;
+        align-items: flex-end; /* Ensure image aligns to the bottom */
       }
       /* overlay header positioned over the image area */
       .overlay-header {
@@ -131,7 +133,7 @@
         box-sizing: border-box;
         font-family: Arial, sans-serif;
         font-size: 13px;
-        padding: 6px 8px;
+        padding: 6px 3px;
         background: transparent; /* fully transparent background */
         border: none; /* no border */
         outline: none;
@@ -139,12 +141,16 @@
         resize: vertical;
         min-height: 30px;
         max-height: 160px;
+        text-align: left; /* Ensure text alignment matches title */
+        background-color: white; /* Change text area background to white */
+        color: black; /* Ensure text is visible */
       }
       #datetimeHeader {
         max-width: 900px;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+        text-align: left; /* Ensure title alignment matches text */
       }
       .top-bar {
         width: 98%;

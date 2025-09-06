@@ -1,4 +1,10 @@
-const { app, BrowserWindow, ipcMain, dialog } = require("electron");
+const {
+  app,
+  BrowserWindow,
+  ipcMain,
+  dialog,
+  nativeTheme,
+} = require("electron");
 const path = require("path");
 
 function createWindow() {
@@ -12,6 +18,12 @@ function createWindow() {
     resizable: false,
     maximizable: false,
     fullscreenable: false,
+    y: 0, // Position the window at the top of the screen
+    x: undefined, // Keep the default horizontal centering
+    autoHideMenuBar: false, // Ensure the taskbar remains visible
+    frame: true, // Ensure the window frame is visible
+    skipTaskbar: false, // Ensure the app is not hidden from the taskbar
+    fullscreen: false, // Disable fullscreen mode to ensure the taskbar is visible
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       contextIsolation: true,
@@ -103,7 +115,10 @@ function createWindow() {
   Menu.setApplicationMenu(menu);
 }
 
-app.whenReady().then(createWindow);
+app.whenReady().then(() => {
+  nativeTheme.themeSource = "dark"; // Set the Electron menu to dark theme
+  createWindow();
+});
 
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") app.quit();
