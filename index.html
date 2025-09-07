@@ -9,39 +9,33 @@
         body {
           width: 100%;
           height: 100%;
-          margin: 0 !important;
-          padding: 0 !important;
-          overflow: hidden !important;
+          margin: 0;
+          padding: 0;
+          overflow: hidden;
         }
         #layout {
-          width: 100% !important;
-          height: 100% !important;
-          max-width: 100% !important;
-          max-height: 100% !important;
-          margin: 0 !important;
-          padding: 0 !important;
-          box-sizing: border-box !important;
-          display: flex !important;
-          flex-direction: column !important;
+          width: 100%;
+          height: 100%;
+          margin: 0;
+          padding: 0;
+          display: flex;
+          flex-direction: column;
+          justify-content: center; /* Center content vertically */
+          align-items: center; /* Center content horizontally */
         }
         #imageContainer {
-          flex: 1 1 auto !important;
-          width: 100% !important;
-          height: 100% !important;
-          max-width: 100% !important;
-          max-height: 100% !important;
-          margin: 0 !important;
-          padding: 0 !important;
-          box-sizing: border-box !important;
-          display: flex !important;
-          justify-content: flex-end !important; /* Snap image to the right */
-          align-items: flex-end !important; /* Snap image to the bottom */
+          width: 100%;
+          height: 100%;
+          margin: 0;
+          padding: 0;
+          display: flex;
+          justify-content: center; /* Center image horizontally */
+          align-items: center; /* Center image vertically */
         }
         #imageContainer img {
-          width: 100% !important; /* Ensure the image always occupies full width */
-          height: auto !important; /* Maintain aspect ratio */
-          object-fit: contain !important; /* Ensure the entire image is visible */
-          padding-right: 220px !important; /* Add padding to push the image left */
+          width: 100%;
+          height: auto;
+          object-fit: contain;
         }
       }
       @page {
@@ -97,10 +91,10 @@
       /* Fixed target image area to match imported image dimensions exactly (increased by 10%) */
       #imageContainer {
         /* slightly increase width (6%) to use spare space on the right (was 4%) */
-        width: calc(100% + 6%);
-        height: calc(656px * 1.16); /* Increase height by an additional 1% */
+        width: calc(100% + 10%); /* Enlarged width by 12% */
+        height: calc(100% + 2%); /* Enlarged height by 6% */
         /* allow it to grow slightly beyond parent width */
-        max-width: calc(100% + 6%);
+        max-width: none; /* Remove the constraint on maximum width */
         background: #f9f9f9;
         border: 1px dashed #bbb;
         overflow: hidden;
@@ -159,6 +153,22 @@
         align-items: center;
         justify-content: space-between;
         box-sizing: border-box;
+      }
+      img {
+        filter: none !important; /* Cancel the invert colors functionality */
+      }
+      #textInputOverlay {
+        background-color: transparent !important; /* Ensure the text area background is fully transparent */
+      }
+      #imageContainer img {
+        width: 100%;
+        height: auto;
+        object-fit: contain;
+        margin: 0; /* Remove any margin */
+        padding: 0; /* Remove any padding */
+        position: absolute; /* Ensure the image aligns perfectly within the container */
+        top: 0;
+        left: 0;
       }
     </style>
   </head>
@@ -291,126 +301,16 @@
       window.electronAPI.onImageSelected((event, filePath) => {
         imageContainer.innerHTML = "";
         if (filePath) {
-          // Load image to get natural size
-          const imgObj = new window.Image();
-          imgObj.src = `file://${filePath}`;
-          imgObj.onload = function () {
-            const aspectRatio = imgObj.naturalWidth / imgObj.naturalHeight;
-            // Get container width and height
-            const containerWidth = imageContainer.offsetWidth;
-            const containerHeight = imageContainer.offsetHeight;
-            // Fit image height to container height, snap bottom to container bottom
-            let newHeight = containerHeight;
-            let newWidth = newHeight * aspectRatio;
-            // If newWidth > containerWidth, fit width instead
-            if (newWidth > containerWidth) {
-              newWidth = containerWidth;
-              newHeight = newWidth / aspectRatio;
-            }
-            // Create wrapper with image fit to container, bottom snapped
-            const wrapper = document.createElement("div");
-            wrapper.className = "crop-wrapper";
-            wrapper.style.left = (containerWidth - newWidth) / 2 + "px";
-            wrapper.style.top = containerHeight - newHeight + "px";
-            wrapper.style.width = newWidth + "px";
-            wrapper.style.height = newHeight + "px";
-            wrapper.style.position = "absolute";
-            wrapper.style.zIndex = "2";
-
-            // Create image
-            const img = document.createElement("img");
-            img.src = `file://${filePath}`;
-            // img.className = "crop-img";
-            img.style.height = "100%";
-            img.style.width = "auto";
-            img.style.position = "absolute";
-            img.style.left = "50%";
-            img.style.transform = "translateX(-50%)";
-            img.style.bottom = "0px";
-            img.style.filter = "grayscale(100%) invert(100%)";
-            img.draggable = false;
-            wrapper.appendChild(img);
-
-            // Add resize handle
-            const handle = document.createElement("div");
-            handle.className = "resize-handle";
-            wrapper.appendChild(handle);
-
-            imageContainer.appendChild(wrapper);
-
-            // Drag logic for wrapper
-            let isDragging = false,
-              dragStartX = 0,
-              dragStartY = 0,
-              startLeft = 0,
-              startTop = 0;
-            wrapper.addEventListener("mousedown", function (e) {
-              if (e.target === handle) return;
-              isDragging = true;
-              dragStartX = e.clientX;
-              dragStartY = e.clientY;
-              startLeft = parseInt(wrapper.style.left);
-              startTop = parseInt(wrapper.style.top);
-              if (isNaN(startLeft)) startLeft = 0;
-              if (isNaN(startTop)) startTop = 0;
-              document.body.style.userSelect = "none";
-              window.addEventListener("mousemove", dragMove);
-              window.addEventListener("mouseup", dragEnd);
-            });
-            function dragMove(e) {
-              if (isDragging) {
-                let dx = e.clientX - dragStartX;
-                let dy = e.clientY - dragStartY;
-                let newLeft = startLeft + dx;
-                let newTop = startTop + dy;
-                // Prevent moving image above bottom
-                newTop = Math.min(newTop, containerHeight - newHeight);
-                wrapper.style.left = newLeft + "px";
-                wrapper.style.top = newTop + "px";
-              }
-            }
-            function dragEnd() {
-              isDragging = false;
-              document.body.style.userSelect = "";
-              window.removeEventListener("mousemove", dragMove);
-              window.removeEventListener("mouseup", dragEnd);
-            }
-
-            // Resize logic (aspect ratio locked, no max limit)
-            let isResizing = false,
-              resizeStartX = 0,
-              resizeStartY = 0,
-              startWidth = 0,
-              startHeight = 0;
-            handle.addEventListener("mousedown", function (e) {
-              e.stopPropagation();
-              isResizing = true;
-              resizeStartX = e.clientX;
-              resizeStartY = e.clientY;
-              startWidth = wrapper.offsetWidth;
-              startHeight = wrapper.offsetHeight;
-              document.body.style.userSelect = "none";
-              window.addEventListener("mousemove", resizeMove);
-              window.addEventListener("mouseup", resizeEnd);
-            });
-            function resizeMove(e) {
-              if (isResizing) {
-                let dw = e.clientX - resizeStartX;
-                let newWidth = Math.max(50, startWidth + dw);
-                let newHeight = newWidth / aspectRatio;
-                // Snap bottom to container bottom
-                let newTop = containerHeight - newHeight;
-                wrapper.style.width = newWidth + "px";
-                wrapper.style.height = newHeight + "px";
-                wrapper.style.top = newTop + "px";
-              }
-            }
-            function resizeEnd() {
-              isResizing = false;
-              document.body.style.userSelect = "";
-              window.removeEventListener("mousemove", resizeMove);
-              window.removeEventListener("mouseup", resizeEnd);
-            }
+          const img = new Image();
+          img.src = `file://${filePath}`;
+          img.onload = () => {
+            img.style.width =
+              "100%"; /* Scale image to fit the width of the image area */
+            img.style.height =
+              "100%"; /* Scale image to fit the height of the image area */
+            img.style.objectFit =
+              "fill"; /* Ensure the image stretches to fill both dimensions */
+            imageContainer.appendChild(img);
           };
         }
       });
@@ -423,114 +323,18 @@
           const item = items[i];
           if (item.type.indexOf("image") !== -1) {
             const blob = item.getAsFile();
-            const imgObj = new window.Image();
+            const img = new Image();
             const url = URL.createObjectURL(blob);
-            imgObj.src = url;
-            imgObj.onload = function () {
+            img.src = url;
+            img.onload = () => {
               imageContainer.innerHTML = "";
-              const aspectRatio = imgObj.naturalWidth / imgObj.naturalHeight;
-              const containerWidth = imageContainer.offsetWidth;
-              const containerHeight = imageContainer.offsetHeight;
-              const newWidth = containerWidth;
-              const newHeight = newWidth / aspectRatio;
-              const wrapper = document.createElement("div");
-              wrapper.className = "crop-wrapper";
-              // center horizontally and snap bottom to container
-              wrapper.style.left = (containerWidth - newWidth) / 2 + "px";
-              wrapper.style.top = containerHeight - newHeight + "px";
-              wrapper.style.width = newWidth + "px";
-              wrapper.style.height = newHeight + "px";
-              wrapper.style.position = "absolute";
-              wrapper.style.zIndex = "2";
-              const img = document.createElement("img");
-              img.src = url;
-              img.className = "crop-img";
-              // match styles used for file-imported images so pasted images snap to bottom
-              img.style.height = "100%";
-              img.style.width = "auto";
-              img.style.position = "absolute";
-              img.style.left = "50%";
-              img.style.transform = "translateX(-50%)";
-              img.style.bottom = "0px";
-              img.style.filter = "grayscale(100%) invert(100%)";
-              img.draggable = false;
-              wrapper.appendChild(img);
-              const handle = document.createElement("div");
-              handle.className = "resize-handle";
-              wrapper.appendChild(handle);
-              imageContainer.appendChild(wrapper);
-              // Drag logic for wrapper
-              let isDragging = false,
-                dragStartX = 0,
-                dragStartY = 0,
-                startLeft = 0,
-                startTop = 0;
-              wrapper.addEventListener("mousedown", function (e) {
-                if (e.target === handle) return;
-                isDragging = true;
-                dragStartX = e.clientX;
-                dragStartY = e.clientY;
-                startLeft = parseInt(wrapper.style.left);
-                startTop = parseInt(wrapper.style.top);
-                if (isNaN(startLeft)) startLeft = 0;
-                if (isNaN(startTop)) startTop = 0;
-                document.body.style.userSelect = "none";
-                window.addEventListener("mousemove", dragMove);
-                window.addEventListener("mouseup", dragEnd);
-              });
-              function dragMove(e) {
-                if (isDragging) {
-                  let dx = e.clientX - dragStartX;
-                  let dy = e.clientY - dragStartY;
-                  let newLeft = startLeft + dx;
-                  let newTop = startTop + dy;
-                  // Prevent moving image above bottom
-                  newTop = Math.min(newTop, containerHeight - newHeight);
-                  wrapper.style.left = newLeft + "px";
-                  wrapper.style.top = newTop + "px";
-                }
-              }
-              function dragEnd() {
-                isDragging = false;
-                document.body.style.userSelect = "";
-                window.removeEventListener("mousemove", dragMove);
-                window.removeEventListener("mouseup", dragEnd);
-              }
-              // Resize logic (aspect ratio locked, no max limit)
-              let isResizing = false,
-                resizeStartX = 0,
-                resizeStartY = 0,
-                startWidth = 0,
-                startHeight = 0;
-              handle.addEventListener("mousedown", function (e) {
-                e.stopPropagation();
-                isResizing = true;
-                resizeStartX = e.clientX;
-                resizeStartY = e.clientY;
-                startWidth = wrapper.offsetWidth;
-                startHeight = wrapper.offsetHeight;
-                document.body.style.userSelect = "none";
-                window.addEventListener("mousemove", resizeMove);
-                window.addEventListener("mouseup", resizeEnd);
-              });
-              function resizeMove(e) {
-                if (isResizing) {
-                  let dw = e.clientX - resizeStartX;
-                  let newWidth = Math.max(50, startWidth + dw);
-                  let newHeight = newWidth / aspectRatio;
-                  // Snap bottom to container bottom
-                  let newTop = containerHeight - newHeight;
-                  wrapper.style.width = newWidth + "px";
-                  wrapper.style.height = newHeight + "px";
-                  wrapper.style.top = newTop + "px";
-                }
-              }
-              function resizeEnd() {
-                isResizing = false;
-                document.body.style.userSelect = "";
-                window.removeEventListener("mousemove", resizeMove);
-                window.removeEventListener("mouseup", resizeEnd);
-              }
+              img.style.width =
+                "100%"; /* Scale image to fit the width of the image area */
+              img.style.height =
+                "100%"; /* Scale image to fit the height of the image area */
+              img.style.objectFit =
+                "fill"; /* Ensure the image stretches to fill both dimensions */
+              imageContainer.appendChild(img);
             };
             break;
           }
