@@ -1,10 +1,4 @@
-const {
-  app,
-  BrowserWindow,
-  ipcMain,
-  dialog,
-  nativeTheme,
-} = require("electron");
+const { app, BrowserWindow, ipcMain, dialog } = require("electron");
 const path = require("path");
 
 function createWindow() {
@@ -115,10 +109,7 @@ function createWindow() {
   Menu.setApplicationMenu(menu);
 }
 
-app.whenReady().then(() => {
-  nativeTheme.themeSource = "dark"; // Set the Electron menu to dark theme
-  createWindow();
-});
+app.whenReady().then(createWindow);
 
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") app.quit();
