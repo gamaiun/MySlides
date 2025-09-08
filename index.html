@@ -149,11 +149,13 @@
         flex-direction: column;
         gap: 6px;
         align-items: flex-start;
+        overflow: visible; /* Ensure new elements are not hidden */
+        height: auto; /* Allow the container to expand with content */
       }
       .overlay-textarea {
-        width: 50px;
-        min-width: 50px;
-        max-width: 50px;
+        width: 200px;
+        min-width: 200px;
+        max-width: 200px;
         box-sizing: border-box;
         font-family: Arial, sans-serif;
         font-size: 14px;
@@ -252,6 +254,13 @@
           <label for="fromInput" class="field-label">From:</label
           ><textarea id="fromInput" class="overlay-textarea"></textarea>
         </div>
+        <div class="field-row">
+          <span class="field-label">Comment:</span>
+          <textarea class="overlay-textarea" rows="1"></textarea>
+        </div>
+        <div class="field-row">
+          <span id="date-under-commentary" class="field-label"></span>
+        </div>
       </div>
       <!-- Removed textPreview -->
       <div id="imageContainer" style="position: relative"></div>
@@ -294,14 +303,7 @@
           hour12: false,
         };
         const nyTime = now.toLocaleTimeString("en-US", nyOptions);
-        const ilOptions = {
-          timeZone: "Asia/Jerusalem",
-          hour: "2-digit",
-          minute: "2-digit",
-          hour12: false,
-        };
-        const ilTime = now.toLocaleTimeString("en-US", ilOptions);
-        return `${dayAbbr} ${monthAbbr} ${dayOfMonth} | New York: ${nyTime} | Israel: ${ilTime}`;
+        return `${dayAbbr} ${monthAbbr} ${dayOfMonth} | New York: ${nyTime}`;
       }
       function updateDatetimeHeader() {
         if (!isHeaderEdited) {
@@ -310,6 +312,16 @@
       }
       updateDatetimeHeader();
       setInterval(updateDatetimeHeader, 10000);
+
+      function setDateUnderCommentary() {
+        const dateElement = document.getElementById("date-under-commentary");
+        if (dateElement) {
+          dateElement.textContent = "Printed: " + getDefaultHeaderText();
+          dateElement.style.fontWeight = "normal";
+        }
+      }
+      setDateUnderCommentary();
+      setInterval(setDateUnderCommentary, 10000);
 
       datetimeHeader.addEventListener("input", () => {
         isHeaderEdited = true;
@@ -531,6 +543,133 @@
       window.addEventListener("afterprint", () => {
         // Optionally restore app styles after printing if needed
       });
+
+      function padZero(num) {
+        return num < 10 ? "0" + num : num;
+      }
+      function getFormattedDateTime() {
+        const now = new Date();
+        const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+        const months = [
+          "Jan",
+          "Feb",
+          "Mar",
+          "Apr",
+          "May",
+          "Jun",
+          "Jul",
+          "Aug",
+          "Sept",
+          "Oct",
+          "Nov",
+          "Dec",
+        ];
+        const dayName = days[now.getDay()];
+        const monthName = months[now.getMonth()];
+        const dayNum = now.getDate();
+        // New York (UTC-4)
+        const ny = new Date(
+          now.toLocaleString("en-US", { timeZone: "America/New_York" })
+        );
+        const nyHour = padZero(ny.getHours());
+        const nyMin = padZero(ny.getMinutes());
+        // Israel (UTC+3)
+        const il = new Date(
+          now.toLocaleString("en-US", { timeZone: "Asia/Jerusalem" })
+        );
+        const ilHour = padZero(il.getHours());
+        const ilMin = padZero(il.getMinutes());
+        return `${dayName} ${monthName} ${dayNum} | New York: ${nyHour}:${nyMin} | Israel: ${ilHour}:${ilMin}`;
+      }
+      window.addEventListener("DOMContentLoaded", function () {
+        var printedTextarea = document.getElementById("printedTextarea");
+        if (printedTextarea) {
+          var formattedDateTime = getFormattedDateTime();
+          if (formattedDateTime) {
+            console.log(
+              "Setting placeholder for Printed textarea:",
+              formattedDateTime
+            );
+            printedTextarea.placeholder = formattedDateTime;
+          } else {
+            console.warn("Formatted date/time is empty. Using fallback value.");
+            printedTextarea.placeholder = "Date not available";
+          }
+        } else {
+          console.error("Printed textarea not found in the DOM.");
+        }
+      });
+
+      function syncDateTitleLabel() {
+        var dateTitleLabel = document.getElementById("dateTitleLabel");
+        var datetimeHeader = document.getElementById("datetimeHeader");
+        if (dateTitleLabel && datetimeHeader) {
+          dateTitleLabel.textContent = datetimeHeader.textContent;
+        }
+      }
+      window.addEventListener("DOMContentLoaded", function () {
+        syncDateTitleLabel();
+      });
+      // Update the label whenever the header changes
+      if (datetimeHeader) {
+        datetimeHeader.addEventListener("input", syncDateTitleLabel);
+      }
+      setInterval(syncDateTitleLabel, 10000);
+
+      function copyDateTitle() {
+        var originalDateTitle = document.getElementById("datetimeHeader");
+        var copiedDateTitle = document.getElementById("copiedDateTitle");
+        if (originalDateTitle && copiedDateTitle) {
+          copiedDateTitle.textContent = originalDateTitle.textContent;
+        }
+      }
+      window.addEventListener("DOMContentLoaded", function () {
+        copyDateTitle();
+      });
+      // Update the copied title whenever the original changes
+      if (datetimeHeader) {
+        datetimeHeader.addEventListener("input", copyDateTitle);
+      }
+      setInterval(copyDateTitle, 10000);
+
+      function updateTestDateLabel() {
+        var testDateLabel = document.getElementById("testDateLabel");
+        if (testDateLabel) {
+          var formattedDateTime = getFormattedDateTime();
+          console.log("Updating Test label with date:", formattedDateTime);
+          testDateLabel.textContent = formattedDateTime;
+        } else {
+          console.error("Test label element not found in the DOM.");
+        }
+      }
+      window.addEventListener("DOMContentLoaded", function () {
+        console.log(
+          "App launched. Attempting to open developer tools console log."
+        );
+        if (window.electronAPI && window.electronAPI.openDevTools) {
+          console.log("Electron API detected. Invoking openDevTools.");
+          try {
+            window.electronAPI.openDevTools();
+          } catch (e) {
+            console.error(
+              "Failed to open developer tools using Electron API.",
+              e
+            );
+          }
+        } else {
+          console.warn(
+            "Electron API not available. Using browser fallback to open dev tools."
+          );
+          try {
+            console.log("Triggering debugger statement to open dev tools.");
+            debugger; // Triggers the browser's developer tools
+          } catch (e) {
+            console.error("Failed to open developer tools using fallback.", e);
+          }
+        }
+        updateTestDateLabel();
+      });
+      setInterval(updateTestDateLabel, 10000);
     </script>
   </body>
 </html>

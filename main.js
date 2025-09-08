@@ -218,3 +218,7 @@ ipcMain.handle("save-as-pdf", async (event, options) => {
     return { success: false, error: error.message };
   }
 });
+
+ipcMain.on("open-dev-tools", (event) => {
+  event.sender.openDevTools();
+});
