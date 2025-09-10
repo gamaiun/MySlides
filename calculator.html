@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Volume Price Calculator</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+      }
+      .calculator-row {
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+      }
+      .calculator-row label {
+        width: 150px;
+        display: inline-block;
+      }
+      .calculator-row input {
+        width: 100px;
+        padding: 5px;
+      }
+      .result {
+        font-weight: bold;
+        margin-top: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="calculator-row">
+      <label>Initial Volume:</label>
+      <input type="number" id="initialVolume" onchange="calculateRatio()" />
+    </div>
+    <div class="calculator-row">
+      <label>Initial Price ($):</label>
+      <input type="number" id="initialPrice" onchange="calculateRatio()" />
+    </div>
+    <div class="calculator-row">
+      <label>New Volume:</label>
+      <input type="number" id="newVolume" onchange="calculateNewPrice()" />
+    </div>
+    <div class="result">
+      <div>Price/Volume Ratio: <span id="ratio">0</span></div>
+      <div>Calculated Price: $<span id="calculatedPrice">0</span></div>
+    </div>
+
+    <script>
+      let currentRatio = 0;
+
+      function calculateRatio() {
+        const volume =
+          parseFloat(document.getElementById("initialVolume").value) || 0;
+        const price =
+          parseFloat(document.getElementById("initialPrice").value) || 0;
+
+        if (volume > 0) {
+          currentRatio = price / volume;
+          document.getElementById("ratio").textContent =
+            currentRatio.toFixed(6);
+          calculateNewPrice();
+        }
+      }
+
+      function calculateNewPrice() {
+        const newVolume =
+          parseFloat(document.getElementById("newVolume").value) || 0;
+        const calculatedPrice = (newVolume * currentRatio).toFixed(2);
+        document.getElementById("calculatedPrice").textContent =
+          calculatedPrice;
+      }
+    </script>
+  </body>
+</html>

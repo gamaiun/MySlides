@@ -1,4 +1,5 @@
-const { app, BrowserWindow, ipcMain, dialog } = require("electron");
+const { app, BrowserWindow, ipcMain, dialog, Menu } = require("electron");
+const fs = require("fs");
 const path = require("path");
 
 function createWindow() {
@@ -28,7 +29,6 @@ function createWindow() {
   win.loadFile("index.html");
 
   // Add custom menu with Browse Image next to Help
-  const { Menu } = require("electron");
   const template = [
     {
       label: "File",
@@ -96,7 +96,15 @@ function createWindow() {
     },
     {
       label: "Help",
-      submenu: [],
+      click: () => {
+        dialog.showMessageBox({
+          type: "info",
+          title: "Help",
+          message: "MySlide App Help",
+          detail:
+            "1) Ruth: VL on Target.time.\n2) Ruth is 1m, note if otherwise.\n3) PriceRight: 1m, note if otherwise.\n4) PriceRight: VL on both sides of the block.\n5) PriceLeft: 5m, note if otherwise.\n6) PriceLeft: Circle on target.",
+        });
+      },
     },
     {
       label: "Browse Image",
@@ -104,9 +112,98 @@ function createWindow() {
         win.webContents.send("open-image-dialog-from-menu");
       },
     },
+    {
+      label: "Calculator",
+      click: () => {
+        const calcWin = new BrowserWindow({
+          width: 400,
+          height: 300,
+          useContentSize: true,
+          resizable: false,
+          webPreferences: {
+            preload: path.join(__dirname, "preload.js"),
+            contextIsolation: true,
+            nodeIntegration: false,
+          },
+        });
+        calcWin.loadFile("calculator.html");
+      },
+    },
+    {
+      label: "Chart",
+      click: () => {
+        createChartWindow();
+      },
+    },
+    {
+      label: "Assumptions",
+      click: () => {
+        createAssumptionsWindow();
+      },
+    },
   ];
   const menu = Menu.buildFromTemplate(template);
   Menu.setApplicationMenu(menu);
+}
+
+function createChartWindow() {
+  const chartWindow = new BrowserWindow({
+    width: 800,
+    height: 600,
+    title: "Chart",
+    webPreferences: {
+      // For a simple page loading a CDN script, these are safer defaults.
+      nodeIntegration: false,
+      contextIsolation: true,
+      // You might not even need to specify webPreferences if these are the defaults.
+    },
+  });
+  chartWindow.loadFile("chart.html"); // We'll create this file next
+}
+
+function createAssumptionsWindow() {
+  // Read the assumptions.txt file
+  const assumptionsFilePath = path.join(__dirname, "assumptions.txt");
+  let assumptionsText = "Error: Could not load assumptions.txt file.";
+
+  try {
+    assumptionsText = fs.readFileSync(assumptionsFilePath, "utf-8");
+  } catch (error) {
+    console.error("Failed to read assumptions.txt:", error);
+  }
+
+  // Create a new window to display the text
+  const assumptionsWindow = new BrowserWindow({
+    width: 600,
+    height: 400,
+    title: "Assumptions",
+    webPreferences: {
+      nodeIntegration: false,
+      contextIsolation: true,
+    },
+  });
+
+  // Create a simple HTML page with the text
+  const htmlContent = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Assumptions</title>
+      <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background-color: #f9f9f9; }
+        pre { white-space: pre-wrap; word-wrap: break-word; }
+      </style>
+    </head>
+    <body>
+      <h1>Assumptions</h1>
+      <pre>${assumptionsText}</pre>
+    </body>
+    </html>
+  `;
+
+  assumptionsWindow.loadURL(
+    `data:text/html;charset=utf-8,${encodeURIComponent(htmlContent)}`
+  );
 }
 
 app.whenReady().then(createWindow);

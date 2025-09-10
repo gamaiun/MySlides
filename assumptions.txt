@@ -1,0 +1,4 @@
+- Do not count 9:30 in block
+- Blocks are built till 11:30-11:40
+- Monday Close is Magnet.
+- Check Hidden Tick at 7:00. UpperHdTk is Bullish.

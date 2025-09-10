@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Chart - Final Test</title>
+    <!--
+      This CSP uses 'unsafe-inline'. It's not ideal for production,
+      but it's the best way to force an inline script to run for this test.
+    -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;"
+    />
+    <style>
+      body {
+        background-color: #f0f0f0;
+        margin: 0;
+        padding: 0;
+        font-family: sans-serif;
+      }
+      #chart {
+        width: 800px;
+        height: 500px;
+        margin: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Chart Test Page</h1>
+    <div id="chart"></div>
+
+    <!-- Load the chart library from CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
+
+    <!-- All logic is now inline for this test -->
+    <script>
+      try {
+        console.log("Starting chart initialization...");
+        const chartContainer = document.getElementById("chart");
+
+        if (typeof LightweightCharts === "undefined" || !chartContainer) {
+          throw new Error("LightweightCharts library or container not found.");
+        }
+
+        console.log("Library object found:", LightweightCharts);
+
+        const chart = LightweightCharts.createChart(chartContainer, {
+          width: 800,
+          height: 500,
+        });
+
+        // This is the critical point. Let's check the chart object immediately.
+        if (typeof chart.addLineSeries !== "function") {
+          console.error(
+            "CRITICAL: createChart succeeded but addLineSeries is NOT a function."
+          );
+          console.log("The invalid chart object is:", chart);
+          throw new Error("The created chart object is invalid.");
+        }
+
+        console.log(
+          "SUCCESS: chart.addLineSeries IS a function. Adding data..."
+        );
+        const lineSeries = chart.addLineSeries();
+        lineSeries.setData([
+          { time: "2025-09-01", value: 100 },
+          { time: "2025-09-02", value: 105 },
+        ]);
+
+        chart.timeScale().fitContent();
+        console.log("Chart should be visible now.");
+      } catch (error) {
+        console.error("An error occurred during chart setup:", error);
+        const chartContainer = document.getElementById("chart");
+        if (chartContainer)
+          chartContainer.innerHTML = `<p style="color: red;">${error.message}</p>`;
+      }
+    </script>
+  </body>
+</html>
