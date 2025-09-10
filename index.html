@@ -140,7 +140,7 @@
         position: absolute;
         top: 8px;
         left: 12px;
-        right: 12px;
+        right: 0;
         z-index: 10;
         color: #222;
         font-weight: bold;
@@ -151,6 +151,12 @@
         align-items: flex-start;
         overflow: visible; /* Ensure new elements are not hidden */
         height: auto; /* Allow the container to expand with content */
+      }
+      .top-header-row {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+        padding-right: 20px; /* Adjust this to fine-tune right-side spacing */
       }
       .overlay-textarea {
         width: 200px;
@@ -226,18 +232,32 @@
     <div id="layout">
       <!-- overlay header sits on top of image area -->
       <div class="overlay-header">
-        <div
-          id="datetimeHeader"
-          contenteditable="true"
-          spellcheck="false"
-          title="Click to edit."
-          style="
-            font-size: 1.1em;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-          "
-        ></div>
+        <div class="top-header-row">
+          <div
+            id="datetimeHeader"
+            contenteditable="true"
+            spellcheck="false"
+            title="Click to edit."
+            style="
+              font-size: 1.1em;
+              white-space: nowrap;
+              overflow: hidden;
+              text-overflow: ellipsis;
+            "
+          ></div>
+          <div>
+            <ul style="list-style-type: disc; margin: 0; padding-left: 18px">
+              <li id="date-under-commentary" class="field-label"></li>
+              <li id="printed-extra" class="field-label">
+                Do not count 9:30 in block
+              </li>
+              <li id="printed-extra" class="field-label">
+                Blocks are built till 11:30
+              </li>
+              <!-- Add more <li> elements here for additional lines if needed -->
+            </ul>
+          </div>
+        </div>
         <div class="field-row">
           <label for="toFindInput" class="field-label">To Find:</label
           ><textarea id="toFindInput" class="overlay-textarea"></textarea>
@@ -257,9 +277,6 @@
         <div class="field-row">
           <span class="field-label">Comment:</span>
           <textarea class="overlay-textarea" rows="1"></textarea>
-        </div>
-        <div class="field-row">
-          <span id="date-under-commentary" class="field-label"></span>
         </div>
       </div>
       <!-- Removed textPreview -->
