@@ -568,7 +568,6 @@
             if (toFindEl) {
               toFindEl.value = (entry.toFind || "").replace(/^To Find:\s*/, "");
             }
-            // Repeat for others:
             const measureEl = document.getElementById("measureInput");
             if (measureEl) {
               measureEl.value = (entry.measure || "").replace(
@@ -589,6 +588,11 @@
             );
             if (commentEl) {
               commentEl.value = entry.comment || "";
+            }
+            // Populate the title
+            const datetimeHeader = document.getElementById("datetimeHeader");
+            if (datetimeHeader) {
+              datetimeHeader.textContent = entry.title || "";
             }
           });
         } else {
