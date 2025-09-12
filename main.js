@@ -36,6 +36,10 @@ function createWindow() {
   // Add custom menu with Browse Image next to Help
   const template = [
     {
+      label: "         ", // ~50px of spaces (adjust as needed)
+      enabled: false, // Disabled so it's not clickable
+    },
+    {
       label: "Save",
       click: () => {
         // Send IPC to renderer to trigger save
@@ -84,48 +88,7 @@ function createWindow() {
       },
     },
     {
-      label: "Edit",
-      submenu: [
-        { role: "undo" },
-        { role: "redo" },
-        { type: "separator" },
-        { role: "cut" },
-        { role: "copy" },
-        { role: "paste" },
-        { role: "selectAll" },
-      ],
-    },
-    {
-      label: "View",
-      submenu: [
-        { role: "reload" },
-        { role: "toggledevtools" },
-        { type: "separator" },
-        { role: "resetZoom" },
-        { role: "zoomIn" },
-        { role: "zoomOut" },
-        { type: "separator" },
-        { role: "togglefullscreen" },
-      ],
-    },
-    {
-      label: "Window",
-      submenu: [{ role: "minimize" }, { role: "close" }],
-    },
-    {
-      label: "Help",
-      click: () => {
-        dialog.showMessageBox({
-          type: "info",
-          title: "Help",
-          message: "MySlide App Help",
-          detail:
-            "1) Ruth: VL on Target.time.\n2) Ruth is 1m, note if otherwise.\n3) PriceRight: 1m, note if otherwise.\n4) PriceRight: VL on both sides of the block.\n5) PriceLeft: 5m, note if otherwise.\n6) PriceLeft: Circle on target.",
-        });
-      },
-    },
-    {
-      label: "Browse Image",
+      label: "Import",
       click: () => {
         win.webContents.send("open-image-dialog-from-menu");
       },
@@ -145,12 +108,6 @@ function createWindow() {
           },
         });
         calcWin.loadFile("calculator.html");
-      },
-    },
-    {
-      label: "Chart",
-      click: () => {
-        createChartWindow();
       },
     },
     {
