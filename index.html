@@ -3,6 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <title>MySlide</title>
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';"
+    />
     <style>
       @media print {
         html,
@@ -198,9 +202,6 @@
       img {
         filter: none !important; /* Cancel the invert colors functionality */
       }
-      #textInputOverlay {
-        background-color: transparent !important; /* Ensure the text area background is fully transparent */
-      }
       #imageContainer img {
         width: 100%;
         height: auto;
@@ -245,25 +246,7 @@
               text-overflow: ellipsis;
             "
           ></div>
-          <div>
-            <ul style="list-style-type: disc; margin: 0; padding-left: 18px">
-              <li id="date-under-commentary" class="field-label"></li>
-              <!-- <li id="printed-extra" class="field-label">
-                Do not count 9:30 in block
-              </li>
-              <li id="printed-extra" class="field-label">
-                Blocks are built till 11:30-11:40
-              </li>
-                            <li id="printed-extra" class="field-label">
-                Monday Close is Magnet.
-              </li>
-                            </li>
-                            <li id="printed-extra" class="field-label">
-                Check HdTk at 700. UpperHdTk is Bullish. 
-              </li> -->
-              <!-- Add more <li> elements here for additional lines if needed -->
-            </ul>
-          </div>
+          <div id="date-under-commentary" class="field-label"></div>
         </div>
         <div class="field-row">
           <label for="toFindInput" class="field-label">To Find:</label
@@ -288,9 +271,10 @@
       </div>
       <!-- Removed textPreview -->
       <div id="imageContainer" style="position: relative"></div>
+      <!-- Add Save Data button below the image container -->
+      <!-- <div style="margin-top: 10px; text-align: center"></div> -->
     </div>
     <script>
-      const textInput = document.getElementById("textInput");
       const imageContainer = document.getElementById("imageContainer");
       const datetimeHeader = document.getElementById("datetimeHeader");
 
@@ -395,12 +379,9 @@
           const img = new Image();
           img.src = `file://${filePath}`;
           img.onload = () => {
-            img.style.width =
-              "100%"; /* Scale image to fit the width of the image area */
-            img.style.height =
-              "100%"; /* Scale image to fit the height of the image area */
-            img.style.objectFit =
-              "fill"; /* Ensure the image stretches to fill both dimensions */
+            img.style.width = "100%";
+            img.style.height = "100%";
+            img.style.objectFit = "fill";
             imageContainer.appendChild(img);
           };
         }
@@ -419,12 +400,9 @@
             img.src = url;
             img.onload = () => {
               imageContainer.innerHTML = "";
-              img.style.width =
-                "100%"; /* Scale image to fit the width of the image area */
-              img.style.height =
-                "100%"; /* Scale image to fit the height of the image area */
-              img.style.objectFit =
-                "fill"; /* Ensure the image stretches to fill both dimensions */
+              img.style.width = "100%";
+              img.style.height = "100%";
+              img.style.objectFit = "fill";
               imageContainer.appendChild(img);
             };
             break;
@@ -461,7 +439,6 @@
               newHeight = containerHeight;
               newWidth = newHeight * aspectRatio;
             }
-            // If newWidth > containerWidth, fit width instead
             if (newWidth > containerWidth) {
               newWidth = containerWidth;
               newHeight = newWidth / aspectRatio;
@@ -483,68 +460,9 @@
             handle.className = "resize-handle";
             wrapper.appendChild(handle);
             imageContainer.appendChild(wrapper);
-            // Drag and resize logic as before...
           };
         }
       });
-
-      // Always show field labels in the textarea, even when user types
-      const textInputOverlay = document.getElementById("textInputOverlay");
-      const fieldLabels = ["To Find:", "Measure:", "Of Size:", "From:"];
-      function enforceFieldLabels() {
-        let lines = textInputOverlay.value.split("\n");
-        // Ensure there are always four lines
-        while (lines.length < fieldLabels.length) {
-          lines.push("");
-        }
-        for (let i = 0; i < fieldLabels.length; i++) {
-          let userText = "";
-          if (lines[i]) {
-            // Extract user text after the label
-            const match = lines[i].match(
-              new RegExp(`^${fieldLabels[i]}\s*(.*)$`)
-            );
-            userText = match ? match[1] : "";
-          }
-          lines[i] = fieldLabels[i] + (userText ? " " + userText : "");
-        }
-        textInputOverlay.value = lines.slice(0, fieldLabels.length).join("\n");
-      }
-      textInputOverlay.addEventListener("input", enforceFieldLabels);
-      // Initialize with labels, each on its own line
-      textInputOverlay.value = fieldLabels.join("\n");
-
-      // For each field, show label as prefix inside textarea and keep it constant
-      function enforceConstantLabel(textarea, label) {
-        textarea.addEventListener("input", function () {
-          let value = textarea.value;
-          // Remove any accidental duplicate label
-          value = value.replace(new RegExp("^" + label + "\s*"), "");
-          textarea.value = label + " " + value;
-          // Move cursor after the label
-          textarea.setSelectionRange(
-            label.length + 1 + value.length,
-            label.length + 1 + value.length
-          );
-        });
-        // Prevent user from deleting the label
-        textarea.addEventListener("keydown", function (e) {
-          if (
-            textarea.selectionStart <= label.length + 1 &&
-            (e.key === "Backspace" || e.key === "ArrowLeft")
-          ) {
-            e.preventDefault();
-            textarea.setSelectionRange(label.length + 1, label.length + 1);
-          }
-        });
-        // Initialize with label
-        textarea.value = label + " ";
-        textarea.setSelectionRange(label.length + 1, label.length + 1);
-      }
-      enforceConstantLabel(document.getElementById("toFindInput"), "To Find:");
-      enforceConstantLabel(document.getElementById("measureInput"), "Measure:");
-      enforceConstantLabel(document.getElementById("ofSizeInput"), "Of Size:");
-      enforceConstantLabel(document.getElementById("fromInput"), "From:");
 
       // Ensure print styles override inline styles during printing
       function applyPrintImageStyles() {
@@ -591,13 +509,11 @@
         const dayName = days[now.getDay()];
         const monthName = months[now.getMonth()];
         const dayNum = now.getDate();
-        // New York (UTC-4)
         const ny = new Date(
           now.toLocaleString("en-US", { timeZone: "America/New_York" })
         );
         const nyHour = padZero(ny.getHours());
         const nyMin = padZero(ny.getMinutes());
-        // Israel (UTC+3)
         const il = new Date(
           now.toLocaleString("en-US", { timeZone: "Asia/Jerusalem" })
         );
@@ -605,24 +521,6 @@
         const ilMin = padZero(il.getMinutes());
         return `${dayName} ${monthName} ${dayNum} | New York: ${nyHour}:${nyMin} | Israel: ${ilHour}:${ilMin}`;
       }
-      window.addEventListener("DOMContentLoaded", function () {
-        var printedTextarea = document.getElementById("printedTextarea");
-        if (printedTextarea) {
-          var formattedDateTime = getFormattedDateTime();
-          if (formattedDateTime) {
-            console.log(
-              "Setting placeholder for Printed textarea:",
-              formattedDateTime
-            );
-            printedTextarea.placeholder = formattedDateTime;
-          } else {
-            console.warn("Formatted date/time is empty. Using fallback value.");
-            printedTextarea.placeholder = "Date not available";
-          }
-        } else {
-          console.error("Printed textarea not found in the DOM.");
-        }
-      });
 
       function syncDateTitleLabel() {
         var dateTitleLabel = document.getElementById("dateTitleLabel");
@@ -634,7 +532,6 @@
       window.addEventListener("DOMContentLoaded", function () {
         syncDateTitleLabel();
       });
-      // Update the label whenever the header changes
       if (datetimeHeader) {
         datetimeHeader.addEventListener("input", syncDateTitleLabel);
       }
@@ -650,50 +547,30 @@
       window.addEventListener("DOMContentLoaded", function () {
         copyDateTitle();
       });
-      // Update the copied title whenever the original changes
       if (datetimeHeader) {
         datetimeHeader.addEventListener("input", copyDateTitle);
       }
       setInterval(copyDateTitle, 10000);
 
-      function updateTestDateLabel() {
-        var testDateLabel = document.getElementById("testDateLabel");
-        if (testDateLabel) {
-          var formattedDateTime = getFormattedDateTime();
-          console.log("Updating Test label with date:", formattedDateTime);
-          testDateLabel.textContent = formattedDateTime;
-        } else {
-          console.error("Test label element not found in the DOM.");
-        }
-      }
       window.addEventListener("DOMContentLoaded", function () {
-        console.log(
-          "App launched. Attempting to open developer tools console log."
-        );
-        if (window.electronAPI && window.electronAPI.openDevTools) {
-          console.log("Electron API detected. Invoking openDevTools.");
-          try {
-            window.electronAPI.openDevTools();
-          } catch (e) {
-            console.error(
-              "Failed to open developer tools using Electron API.",
-              e
-            );
-          }
-        } else {
-          console.warn(
-            "Electron API not available. Using browser fallback to open dev tools."
-          );
-          try {
-            console.log("Triggering debugger statement to open dev tools.");
-            debugger; // Triggers the browser's developer tools
-          } catch (e) {
-            console.error("Failed to open developer tools using fallback.", e);
-          }
-        }
-        updateTestDateLabel();
+        // Removed verbose logs and non-existent element checks
       });
-      setInterval(updateTestDateLabel, 10000);
+
+      // Listen for menu-triggered save
+      window.electronAPI.onTriggerSaveData(() => {
+        const data = {
+          toFind: document.getElementById("toFindInput").value,
+          measure: document.getElementById("measureInput").value,
+          ofSize: document.getElementById("ofSizeInput").value,
+          from: document.getElementById("fromInput").value,
+          comment: document.querySelector(".field-row:last-child textarea")
+            .value,
+          printed: document.getElementById("date-under-commentary").textContent,
+          title: document.getElementById("datetimeHeader").textContent,
+          timestamp: new Date().toISOString(),
+        };
+        window.electronAPI.saveData(data);
+      });
     </script>
   </body>
 </html>

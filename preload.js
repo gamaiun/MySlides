@@ -11,4 +11,8 @@ contextBridge.exposeInMainWorld("electronAPI", {
   onMenuPrint: (callback) => ipcRenderer.on("menu-print", callback),
   onMenuSnip: (callback) => ipcRenderer.on("menu-snip", callback),
   openDevTools: () => ipcRenderer.send("open-dev-tools"),
+  saveData: (data) => ipcRenderer.send("save-data", data),
+  onSnipImage: (callback) => ipcRenderer.on("snip-image", callback),
+  onTriggerSaveData: (callback) =>
+    ipcRenderer.on("trigger-save-data", callback),
 });

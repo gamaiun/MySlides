@@ -31,8 +31,21 @@ function createWindow() {
   // Add custom menu with Browse Image next to Help
   const template = [
     {
-      label: "File",
-      submenu: [{ role: "quit" }],
+      label: "Save",
+      click: () => {
+        // Send IPC to renderer to trigger save
+        const allWindows = BrowserWindow.getAllWindows().filter(
+          (w) =>
+            !w.isDestroyed() && w.webContents && !w.webContents.isDestroyed()
+        );
+        allWindows.forEach((w) => {
+          try {
+            w.webContents.send("trigger-save-data");
+          } catch (e) {
+            // ignore send failures
+          }
+        });
+      },
     },
     {
       label: "Print",
@@ -141,6 +154,12 @@ function createWindow() {
         createAssumptionsWindow();
       },
     },
+    {
+      label: "Archive",
+      click: () => {
+        createArchiveWindow();
+      },
+    },
   ];
   const menu = Menu.buildFromTemplate(template);
   Menu.setApplicationMenu(menu);
@@ -202,6 +221,43 @@ function createAssumptionsWindow() {
   `;
 
   assumptionsWindow.loadURL(
+    `data:text/html;charset=utf-8,${encodeURIComponent(htmlContent)}`
+  );
+}
+
+function createArchiveWindow() {
+  // Create a new window for Archive (you can customize the content)
+  const archiveWindow = new BrowserWindow({
+    width: 600,
+    height: 400,
+    title: "Archive",
+    webPreferences: {
+      nodeIntegration: false,
+      contextIsolation: true,
+    },
+  });
+
+  // Create a simple HTML page with placeholder content
+  const htmlContent = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Archive</title>
+      <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background-color: #f9f9f9; }
+        h1 { color: #333; }
+        p { color: #666; }
+      </style>
+    </head>
+    <body>
+      <h1>Archive</h1>
+      <p>This is the Archive section. You can add archived data, files, or notes here.</p>
+      <p>Placeholder content - customize as needed!</p>
+    </body>
+    </html>
+  `;
+
+  archiveWindow.loadURL(
     `data:text/html;charset=utf-8,${encodeURIComponent(htmlContent)}`
   );
 }
@@ -318,4 +374,29 @@ ipcMain.handle("save-as-pdf", async (event, options) => {
 
 ipcMain.on("open-dev-tools", (event) => {
   event.sender.openDevTools();
+});
+
+// In main.js, after the existing ipcMain handlers
+ipcMain.on("save-data", (event, data) => {
+  const dataFilePath = path.join(__dirname, "data.json");
+
+  // Read existing data or initialize empty array
+  let existingData = [];
+  try {
+    const fileContent = fs.readFileSync(dataFilePath, "utf-8");
+    existingData = JSON.parse(fileContent);
+  } catch (error) {
+    // File doesn't exist or is invalid, start with empty array
+  }
+
+  // Append new data
+  existingData.push(data);
+
+  // Write back to file
+  try {
+    fs.writeFileSync(dataFilePath, JSON.stringify(existingData, null, 2));
+    console.log("Data saved successfully.");
+  } catch (error) {
+    console.error("Failed to save data:", error);
+  }
 });
