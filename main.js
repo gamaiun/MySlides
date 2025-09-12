@@ -188,7 +188,6 @@ function createAssumptionsWindow() {
 }
 
 function createArchiveWindow() {
-  // Create a new window for Archive (you can customize the content)
   const archiveWindow = new BrowserWindow({
     width: 600,
     height: 400,
@@ -197,8 +196,10 @@ function createArchiveWindow() {
       nodeIntegration: false,
       contextIsolation: true,
     },
+    menuBarVisible: false, // Hide the menu bar
   });
-  archiveWindow.loadFile("archive.html"); // Load the new file
+  archiveWindow.loadFile("archive.html");
+  archiveWindow.setMenu(null); // Explicitly remove the menu
 }
 
 app.whenReady().then(createWindow);
