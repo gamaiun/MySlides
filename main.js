@@ -6,6 +6,10 @@ const {
   Menu,
   nativeTheme,
 } = require("electron");
+
+app.commandLine.appendSwitch("--disable-cache"); // Disable disk cache
+app.commandLine.appendSwitch("--disable-gpu"); // Disable GPU acceleration (if needed)
+
 const fs = require("fs");
 const path = require("path");
 

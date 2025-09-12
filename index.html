@@ -82,6 +82,9 @@
         display: flex;
         flex-direction: column;
         box-sizing: border-box;
+        border-radius: 10px; /* Round the corners */
+        overflow: hidden; /* Clip the contents to the rounded corners */
+
         margin: 0;
         /* align items to the start so children (image) line up with the title's left edge */
         align-items: flex-start;
@@ -169,11 +172,11 @@
         box-sizing: border-box;
         font-family: Arial, sans-serif;
         font-size: 14px;
-        padding: 5px 3px;
+        padding: 2px 8px 8px; /* Adjusted: less top padding, more bottom to move text up */
         background: transparent; /* fully transparent background */
         border: none; /* no border */
         outline: none;
-        border-radius: 0;
+        border-radius: 10px;
         text-align: left; /* Ensure text alignment matches title */
         background-color: white; /* Change text area background to white */
         color: black; /* Ensure text is visible */
