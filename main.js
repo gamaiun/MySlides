@@ -1,4 +1,11 @@
-const { app, BrowserWindow, ipcMain, dialog, Menu } = require("electron");
+const {
+  app,
+  BrowserWindow,
+  ipcMain,
+  dialog,
+  Menu,
+  nativeTheme,
+} = require("electron");
 const fs = require("fs");
 const path = require("path");
 
@@ -21,6 +28,7 @@ function createWindow() {
     frame: true, // Ensure the window frame is visible
     skipTaskbar: false, // Ensure the app is not hidden from the taskbar
     fullscreen: false, // Disable fullscreen mode to ensure the taskbar is visible
+
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       contextIsolation: true,
@@ -376,3 +384,6 @@ ipcMain.on("send-selected-entry", (event, entry) => {
     console.error("Main window not available to send selected entry.");
   }
 });
+
+// Set dark theme
+nativeTheme.themeSource = "dark";

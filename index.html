@@ -70,7 +70,7 @@
         display: flex;
         flex-direction: column;
         background-color: white; /* Change background to white */
-        color: black; /* Ensure text is visible on white background */
+        color: rgb(19, 17, 17); /* Ensure text is visible on white background */
       }
       #layout {
         border: none;
@@ -145,7 +145,7 @@
         top: 8px;
         left: 12px;
         right: 0;
-        z-index: 10;
+        z-index: 100; /* Increased from 10 to 100 to ensure it's on top */
         color: #222;
         font-weight: bold;
         pointer-events: auto;
@@ -153,7 +153,7 @@
         flex-direction: column;
         gap: 6px;
         align-items: flex-start;
-        overflow: visible; /* Ensure new elements are not hidden */
+        overflow: visible;
         height: auto; /* Allow the container to expand with content */
       }
       .top-header-row {
@@ -222,6 +222,30 @@
         font-size: 13px;
         color: #222;
         margin-right: 8px;
+      }
+      @media (prefers-color-scheme: dark) {
+        body {
+          background-color: #2e2e2e;
+          color: #e0e0e0;
+        }
+        .overlay-header {
+          color: #1d1c1c; /* Black text for contrast on bright background */
+        }
+        .field-label {
+          color: #221e1e; /* Black text for labels */
+        }
+        .overlay-textarea {
+          background-color: #fff; /* White background for textareas */
+          color: #242121; /* Black text */
+          border: 1px solid #e5e0e0;
+        }
+        .overlay-textarea:focus {
+          background-color: #f0f0f0;
+        }
+        #imageContainer {
+          background: #f9f9f9; /* Bright background */
+          border: 1px dashed #ede9e9;
+        }
       }
     </style>
   </head>
