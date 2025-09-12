@@ -593,6 +593,7 @@
             const datetimeHeader = document.getElementById("datetimeHeader");
             if (datetimeHeader) {
               datetimeHeader.textContent = entry.title || "";
+              isHeaderEdited = true; // Prevent the auto-update interval from resetting it
             }
           });
         } else {
