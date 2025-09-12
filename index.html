@@ -275,6 +275,12 @@
       <!-- <div style="margin-top: 10px; text-align: center"></div> -->
     </div>
     <script>
+      console.log("Main window renderer script loaded");
+      console.log("electronAPI available:", !!window.electronAPI);
+      console.log(
+        "Main window renderer script loaded, electronAPI available:",
+        !!window.electronAPI
+      );
       const imageContainer = document.getElementById("imageContainer");
       const datetimeHeader = document.getElementById("datetimeHeader");
 
@@ -552,8 +558,42 @@
       }
       setInterval(copyDateTitle, 10000);
 
-      window.addEventListener("DOMContentLoaded", function () {
-        // Removed verbose logs and non-existent element checks
+      window.addEventListener("DOMContentLoaded", () => {
+        console.log("DOM loaded in main window");
+        if (window.electronAPI) {
+          console.log("Attaching onSelectedEntry listener");
+          window.electronAPI.onSelectedEntry((entry) => {
+            console.log("Received entry in main window:", entry);
+            const toFindEl = document.getElementById("toFindInput");
+            if (toFindEl) {
+              toFindEl.value = (entry.toFind || "").replace(/^To Find:\s*/, "");
+            }
+            // Repeat for others:
+            const measureEl = document.getElementById("measureInput");
+            if (measureEl) {
+              measureEl.value = (entry.measure || "").replace(
+                /^Measure:\s*/,
+                ""
+              );
+            }
+            const ofSizeEl = document.getElementById("ofSizeInput");
+            if (ofSizeEl) {
+              ofSizeEl.value = (entry.ofSize || "").replace(/^Of Size:\s*/, "");
+            }
+            const fromEl = document.getElementById("fromInput");
+            if (fromEl) {
+              fromEl.value = (entry.from || "").replace(/^From:\s*/, "");
+            }
+            const commentEl = document.querySelector(
+              ".field-row:last-child textarea"
+            );
+            if (commentEl) {
+              commentEl.value = entry.comment || "";
+            }
+          });
+        } else {
+          console.error("electronAPI not available in main window");
+        }
       });
 
       // Listen for menu-triggered save

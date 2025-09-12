@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Archive - MySlide</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+        background-color: #f9f9f9;
+      }
+      h1 {
+        color: #333;
+      }
+      ul {
+        list-style-type: disc;
+        padding-left: 20px;
+      }
+      li {
+        margin: 10px 0;
+        cursor: pointer;
+        padding: 5px;
+        border: 1px solid #ddd;
+        background-color: #fff;
+        border-radius: 4px;
+      }
+      li:hover {
+        background-color: #e9e9e9;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Archive - Saved Entries</h1>
+    <ul id="entryList">
+      <!-- List items will be populated here -->
+    </ul>
+
+    <script>
+      // Load data from main process
+      window.electronAPI
+        .loadData()
+        .then((data) => {
+          const entryList = document.getElementById("entryList");
+          data.forEach((entry, index) => {
+            const li = document.createElement("li");
+            li.textContent = entry.title; // Display the title as the list item
+            li.addEventListener("click", () => {
+              console.log("Sending entry from Archive:", entry);
+              // Send the selected entry back to the main window
+              window.electronAPI.sendSelectedEntry(entry);
+              window.close(); // Close the Archive window after sending
+            });
+            entryList.appendChild(li);
+          });
+        })
+        .catch((error) => {
+          console.error("Failed to load data:", error);
+        });
+    </script>
+  </body>
+</html>

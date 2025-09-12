@@ -15,4 +15,8 @@ contextBridge.exposeInMainWorld("electronAPI", {
   onSnipImage: (callback) => ipcRenderer.on("snip-image", callback),
   onTriggerSaveData: (callback) =>
     ipcRenderer.on("trigger-save-data", callback),
+  loadData: () => ipcRenderer.invoke("load-data"),
+  sendSelectedEntry: (entry) => ipcRenderer.send("send-selected-entry", entry),
+  onSelectedEntry: (callback) =>
+    ipcRenderer.on("selected-entry", (event, data) => callback(data)),
 });

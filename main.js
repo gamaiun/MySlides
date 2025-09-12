@@ -2,6 +2,8 @@ const { app, BrowserWindow, ipcMain, dialog, Menu } = require("electron");
 const fs = require("fs");
 const path = require("path");
 
+let mainWindow; // Global reference to the main window
+
 function createWindow() {
   const win = new BrowserWindow({
     // Use content size so the width/height refer to the web page content area
@@ -28,6 +30,9 @@ function createWindow() {
 
   win.loadFile("index.html");
 
+  // Set the global reference
+  mainWindow = win;
+  console.log("Main window created, id:", win.id);
   // Add custom menu with Browse Image next to Help
   const template = [
     {
@@ -230,36 +235,13 @@ function createArchiveWindow() {
   const archiveWindow = new BrowserWindow({
     width: 600,
     height: 400,
-    title: "Archive",
     webPreferences: {
+      preload: path.join(__dirname, "preload.js"),
       nodeIntegration: false,
       contextIsolation: true,
     },
   });
-
-  // Create a simple HTML page with placeholder content
-  const htmlContent = `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <title>Archive</title>
-      <style>
-        body { font-family: Arial, sans-serif; padding: 20px; background-color: #f9f9f9; }
-        h1 { color: #333; }
-        p { color: #666; }
-      </style>
-    </head>
-    <body>
-      <h1>Archive</h1>
-      <p>This is the Archive section. You can add archived data, files, or notes here.</p>
-      <p>Placeholder content - customize as needed!</p>
-    </body>
-    </html>
-  `;
-
-  archiveWindow.loadURL(
-    `data:text/html;charset=utf-8,${encodeURIComponent(htmlContent)}`
-  );
+  archiveWindow.loadFile("archive.html"); // Load the new file
 }
 
 app.whenReady().then(createWindow);
@@ -398,5 +380,41 @@ ipcMain.on("save-data", (event, data) => {
     console.log("Data saved successfully.");
   } catch (error) {
     console.error("Failed to save data:", error);
+  }
+});
+
+// Add IPC handler to load data
+ipcMain.handle("load-data", async () => {
+  try {
+    const dataPath = path.join(__dirname, "data.json");
+    const data = JSON.parse(fs.readFileSync(dataPath, "utf-8"));
+    return data;
+  } catch (error) {
+    console.error("Error loading data:", error);
+    return [];
+  }
+});
+
+ipcMain.on("send-selected-entry", (event, entry) => {
+  console.log("Received entry in main process:", entry);
+  console.log(
+    "Main window id when sending:",
+    mainWindow.id,
+    "isDestroyed:",
+    mainWindow.isDestroyed()
+  );
+  if (
+    mainWindow &&
+    !mainWindow.isDestroyed() &&
+    mainWindow.webContents &&
+    !mainWindow.webContents.isDestroyed()
+  ) {
+    console.log("Forwarding entry to main window after delay");
+    setTimeout(() => {
+      mainWindow.webContents.send("selected-entry", entry);
+      console.log("Event sent to main window");
+    }, 500); // 500ms delay
+  } else {
+    console.error("Main window not available to send selected entry.");
   }
 });
