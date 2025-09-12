@@ -5,7 +5,7 @@
     <title>MySlide</title>
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';"
+      content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:;"
     />
     <style>
       @media print {
@@ -19,31 +19,34 @@
         }
         #layout {
           width: 100%;
-          height: 95%; /* Lower the printed area by 5% */
+          height: 80%; /* Use full printable height */
           margin: 0;
-          padding: 0;
+          padding: 0; /* Remove top padding */
+          padding-top: 150px;
           display: flex;
           flex-direction: column;
-          justify-content: flex-end; /* Align to bottom */
+          /* justify-content: flex-end; Align container to bottom */
           align-items: flex-end; /* Align to right */
         }
-        #imageContainer {
-          width: 100%;
-          height: 95%; /* Lower the printed area by 5% */
-          margin: 0;
-          padding: 0;
-          display: flex;
-          justify-content: flex-end; /* Align image to right */
-          align-items: flex-end; /* Align image to bottom */
-          overflow-x: hidden;
-          overflow-y: visible;
+        #imageContainer img {
+          width: 100% !important; /* Fill full container width */
+          height: 100% !important; /* Fill full container height */
+          object-fit: contain !important;
+          object-position: bottom !important; /* Align image to bottom of img element (container bottom) */
+          position: absolute !important;
+          top: 0 !important; /* Align img element to top-left of container */
+          left: 0 !important;
+          right: auto !important;
+          bottom: auto !important;
+          margin: 0 !important;
+          padding: 0 !important;
         }
         #imageContainer img {
           width: auto !important;
           max-width: 100% !important;
-          height: 100% !important;
+          height: 100% !important; /* Fill height */
           object-fit: contain !important;
-          object-position: right bottom !important;
+          object-position: bottom !important;
           position: absolute !important;
           right: 0 !important;
           bottom: 0 !important;
@@ -66,7 +69,7 @@
         overflow: hidden;
         box-sizing: border-box;
         /* Reduce top padding to bring content closer to the top */
-        padding: 8px 40px 40px 40px;
+        padding: 8px 20px 20px 8px;
         display: flex;
         flex-direction: column;
         background-color: white; /* Change background to white */
@@ -77,17 +80,17 @@
         padding: 0;
         /* Use the full available content width (body padding already applied) */
         width: 100%;
-        max-width: calc(100% - 80px);
+        max-width: 100%;
         position: relative;
         display: flex;
         flex-direction: column;
         box-sizing: border-box;
         border-radius: 10px; /* Round the corners */
-        overflow: hidden; /* Clip the contents to the rounded corners */
+        /* overflow: hidden; Clip the contents to the rounded corners */
 
         margin: 0;
         /* align items to the start so children (image) line up with the title's left edge */
-        align-items: flex-start;
+        align-items: center; /* Align to left */
         flex: 1;
       }
       .controls {
@@ -109,12 +112,12 @@
       /* Fixed target image area to match imported image dimensions exactly (increased by 10%) */
       #imageContainer {
         /* slightly increase width (6%) to use spare space on the right (was 4%) */
-        width: calc(100% + 10%); /* Enlarged width by 12% */
-        height: calc(100% + 2%); /* Enlarged height by 6% */
+        width: 100%; /* Enlarged width by 12% */
+        height: 100%; /* Enlarged height by 6% */
         /* allow it to grow slightly beyond parent width */
         max-width: none; /* Remove the constraint on maximum width */
         background: #f9f9f9;
-        border: 1px dashed #bbb;
+        /* border: 1px dashed #bbb; */
         overflow: hidden;
         margin: 0;
         position: relative;
@@ -129,19 +132,7 @@
         justify-content: flex-end; /* Align image to the right */
         align-items: flex-end; /* Align image to the bottom */
       }
-      #imageContainer img {
-        width: auto;
-        height: 100%; /* Image height fits container */
-        object-fit: cover; /* Crop left side if too wide, show right side */
-        object-position: right bottom; /* Always show right side and bottom of image */
-        position: absolute;
-        right: 0;
-        bottom: 0;
-        left: auto;
-        top: auto;
-        margin: 0;
-        padding: 0;
-      }
+
       /* overlay header positioned over the image area */
       .overlay-header {
         position: absolute;
@@ -206,14 +197,17 @@
         filter: none !important; /* Cancel the invert colors functionality */
       }
       #imageContainer img {
-        width: 100%;
-        height: auto;
-        object-fit: contain;
-        margin: 0; /* Remove any margin */
-        padding: 0; /* Remove any padding */
-        position: absolute; /* Ensure the image aligns perfectly within the container */
-        top: 0;
-        left: 0;
+        width: 100% !important; /* Fill container width */
+        /* height: 100% !important; Fill container height */
+        object-fit: contain !important; /* Show entire image proportionally */
+        object-position: left !important;
+        position: absolute !important;
+        top: 0 !important;
+        left: 0 !important; /* Align to top-left for full coverage */
+        right: auto !important;
+        bottom: auto !important;
+        margin: 0 !important;
+        padding: 0 !important;
       }
       .field-row {
         display: flex;
@@ -412,9 +406,10 @@
           const img = new Image();
           img.src = `file://${filePath}`;
           img.onload = () => {
-            img.style.width = "100%";
+            img.style.width = "auto";
             img.style.height = "100%";
-            img.style.objectFit = "fill";
+            img.style.objectFit = "contain";
+            img.style.objectPosition = "center";
             imageContainer.appendChild(img);
           };
         }
@@ -433,9 +428,10 @@
             img.src = url;
             img.onload = () => {
               imageContainer.innerHTML = "";
-              img.style.width = "100%";
-              img.style.height = "100%";
-              img.style.objectFit = "fill";
+              img.style.width = "auto"; // Adjust to natural aspect ratio
+              img.style.height = "100%"; // Fit height
+              img.style.objectFit = "contain"; // Show entire image
+              img.style.objectPosition = "center"; // Center if needed
               imageContainer.appendChild(img);
             };
             break;

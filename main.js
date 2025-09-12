@@ -7,8 +7,8 @@ const {
   nativeTheme,
 } = require("electron");
 
-app.commandLine.appendSwitch("--disable-cache"); // Disable disk cache
-app.commandLine.appendSwitch("--disable-gpu"); // Disable GPU acceleration (if needed)
+// app.commandLine.appendSwitch("--disable-cache"); // Disable disk cache
+// app.commandLine.appendSwitch("--disable-gpu"); // Disable GPU acceleration (if needed)
 
 const fs = require("fs");
 const path = require("path");
@@ -39,7 +39,7 @@ function createWindow() {
       nodeIntegration: false,
     },
   });
-
+  // win.webContents.openDevTools();
   win.loadFile("index.html");
 
   // Set the global reference
