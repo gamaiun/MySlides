@@ -330,7 +330,7 @@ ipcMain.on("open-dev-tools", (event) => {
 
 // In main.js, after the existing ipcMain handlers
 ipcMain.on("save-data", (event, data) => {
-  const dataFilePath = path.join(__dirname, "data.json");
+  const dataFilePath = path.join(app.getPath("userData"), "data.json");
 
   // Read existing data or initialize empty array
   let existingData = [];
@@ -367,7 +367,7 @@ ipcMain.on("save-data", (event, data) => {
 // Add IPC handler to load data
 ipcMain.handle("load-data", async () => {
   try {
-    const dataPath = path.join(__dirname, "data.json");
+    const dataPath = path.join(app.getPath("userData"), "data.json");
     const data = JSON.parse(fs.readFileSync(dataPath, "utf-8"));
     return data;
   } catch (error) {
