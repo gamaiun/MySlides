@@ -48,7 +48,7 @@ function createWindow() {
   // Add custom menu with Browse Image next to Help
   const template = [
     {
-      label: "         ", // ~50px of spaces (adjust as needed)
+      label: " ", // ~50px of spaces (adjust as needed)
       enabled: false, // Disabled so it's not clickable
     },
     {
@@ -341,13 +341,24 @@ ipcMain.on("save-data", (event, data) => {
     // File doesn't exist or is invalid, start with empty array
   }
 
-  // Append new data
-  existingData.push(data);
+  // Check if an entry with the same title exists
+  const existingIndex = existingData.findIndex(
+    (entry) => entry.title === data.title
+  );
+
+  if (existingIndex !== -1) {
+    // Update existing entry
+    existingData[existingIndex] = data;
+    console.log("Data updated successfully.");
+  } else {
+    // Add new entry
+    existingData.push(data);
+    console.log("Data saved successfully.");
+  }
 
   // Write back to file
   try {
     fs.writeFileSync(dataFilePath, JSON.stringify(existingData, null, 2));
-    console.log("Data saved successfully.");
   } catch (error) {
     console.error("Failed to save data:", error);
   }
