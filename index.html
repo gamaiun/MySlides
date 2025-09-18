@@ -167,14 +167,13 @@
         box-sizing: border-box;
         font-family: Arial, sans-serif;
         font-size: 14px;
-        padding: 2px 8px 8px; /* Adjusted: less top padding, more bottom to move text up */
-        background: transparent; /* fully transparent background */
-        border: none; /* no border */
+        padding: 2px 8px 8px;
+        background-color: white;
+        border: 1px solid #e5e0e0;
         outline: none;
         border-radius: 10px;
-        text-align: left; /* Ensure text alignment matches title */
-        background-color: white; /* Change text area background to white */
-        color: black; /* Ensure text is visible */
+        text-align: left;
+        color: black;
         margin-bottom: 2px;
         height: 20px;
         min-height: 20px;
@@ -273,25 +272,61 @@
           ></div>
           <div id="date-under-commentary" class="field-label"></div>
         </div>
-        <div class="field-row">
-          <label for="toFindInput" class="field-label">To Find:</label
-          ><textarea id="toFindInput" class="overlay-textarea"></textarea>
-        </div>
-        <div class="field-row">
-          <label for="measureInput" class="field-label">Measure:</label
-          ><textarea id="measureInput" class="overlay-textarea"></textarea>
-        </div>
-        <div class="field-row">
-          <label for="ofSizeInput" class="field-label">Of Size:</label
-          ><textarea id="ofSizeInput" class="overlay-textarea"></textarea>
-        </div>
-        <div class="field-row">
-          <label for="fromInput" class="field-label">From:</label
-          ><textarea id="fromInput" class="overlay-textarea"></textarea>
-        </div>
-        <div class="field-row">
-          <span class="field-label">Comment:</span>
-          <textarea class="overlay-textarea" rows="1"></textarea>
+  <div style="display: flex; height: 100px; min-height: 100px; width: 100%; box-sizing: border-box; padding-right: 20px;">
+          <!-- Left column -->
+          <div style="width: 320px; margin-right: 8px; flex-shrink: 0;">
+            <div class="field-row">
+              <label for="toFindInput" class="field-label">To Find:</label>
+              <textarea id="toFindInput" class="overlay-textarea"></textarea>
+            </div>
+            <div class="field-row">
+              <label for="measureInput" class="field-label">Measure:</label>
+              <textarea id="measureInput" class="overlay-textarea"></textarea>
+            </div>
+            <div class="field-row">
+              <label for="ofSizeInput" class="field-label">Of Size:</label>
+              <textarea id="ofSizeInput" class="overlay-textarea"></textarea>
+            </div>
+            <div class="field-row">
+              <label for="fromInput" class="field-label">From:</label>
+              <textarea id="fromInput" class="overlay-textarea"></textarea>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Comment:</span>
+              <textarea class="overlay-textarea" rows="1"></textarea>
+            </div>
+          </div>
+          <!-- Right column -->
+          <div style="flex: 1; min-width: 0; margin-right: 8px;">
+            <textarea id="rightBigField" spellcheck="true" lang="en" data-enable-grammarly="true" data-gramm="true" contenteditable="true" style="width: 100%; height: 100%; resize: none; margin: 0; box-sizing: border-box; border: 1px solid #e5e0e0; border-radius: 10px; padding: 8px; font-family: Arial, sans-serif; font-size: 14px; background-color: white; color: black;"></textarea>
+          </div>
+      <style>
+        .fields-row {
+          display: flex;
+          flex-direction: row;
+          gap: 24px;
+          width: 100%;
+          height: 260px;
+          min-height: 200px;
+          align-items: stretch;
+        }
+        .fields-col {
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+          flex: 1 1 0%;
+          height: 100%;
+        }
+        .right-fields-col {
+          height: 100%;
+        }
+        .right-stretch {
+          flex: 1 1 0%;
+          min-height: 0;
+          height: 100%;
+          width: 100%;
+        }
+      </style>
         </div>
       </div>
       <!-- Removed textPreview -->
@@ -586,6 +621,15 @@
       setInterval(copyDateTitle, 10000);
 
       window.addEventListener("DOMContentLoaded", () => {
+        // Enable spell check for all textareas
+        document.querySelectorAll('textarea').forEach(textarea => {
+          textarea.setAttribute('spellcheck', 'true');
+          textarea.setAttribute('lang', 'en');
+          // Force spell check refresh
+          textarea.addEventListener('input', function() {
+            this.spellcheck = true;
+          });
+        });
         console.log("DOM loaded in main window");
         if (window.electronAPI) {
           console.log("Attaching onSelectedEntry listener");

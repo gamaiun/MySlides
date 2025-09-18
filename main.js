@@ -5,10 +5,12 @@ const {
   dialog,
   Menu,
   nativeTheme,
+  screen,
+  session,
 } = require("electron");
 
-// app.commandLine.appendSwitch("--disable-cache"); // Disable disk cache
-// app.commandLine.appendSwitch("--disable-gpu"); // Disable GPU acceleration (if needed)
+app.commandLine.appendSwitch("enable-spell-checking");
+app.commandLine.appendSwitch("enable-features", "SpellCheckAPI");
 
 const fs = require("fs");
 const path = require("path");
@@ -16,12 +18,15 @@ const path = require("path");
 let mainWindow; // Global reference to the main window
 
 function createWindow() {
+  const primaryDisplay = screen.getPrimaryDisplay();
+  const { height: screenHeight } = primaryDisplay.workAreaSize;
+
   const win = new BrowserWindow({
     // Use content size so the width/height refer to the web page content area
     // (this prevents window chrome from reducing the available content area).
     width: 1380,
     // Use content height requested by user
-    height: 768,
+    height: screenHeight, // Use available height excluding taskbar
     useContentSize: true,
     resizable: false,
     maximizable: false,
@@ -37,6 +42,8 @@ function createWindow() {
       preload: path.join(__dirname, "preload.js"),
       contextIsolation: true,
       nodeIntegration: false,
+      spellcheck: true,
+      enableSpellChecking: true,
     },
   });
   // win.webContents.openDevTools();
@@ -214,7 +221,12 @@ function createArchiveWindow() {
   archiveWindow.setMenu(null); // Explicitly remove the menu
 }
 
-app.whenReady().then(createWindow);
+app.whenReady().then(() => {
+  // Configure spell checker
+  session.defaultSession.setSpellCheckerLanguages(["en-US"]);
+  session.defaultSession.setSpellCheckerEnabled(true);
+  createWindow();
+});
 
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") app.quit();
