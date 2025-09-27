@@ -1371,7 +1371,7 @@
   <style>
     :root {
       --col-gap: 8px;
-      --col-width: 70px; /* default; will be synced to first select width at runtime */
+      --col-width: 63px; /* column width for dropdowns and headers (10% smaller) */
     }
     /* Normalize spacing for first row and all rows */
     .field-row {
@@ -1418,7 +1418,7 @@
     }
   </style>
   <script>
-    // Remove only the small 50px textareas that immediately follow dropdowns
+  // Remove only the small 50px textareas that immediately follow dropdowns
     document.addEventListener('DOMContentLoaded', function () {
       document.querySelectorAll('.field-row select + textarea').forEach(function (el) {
         el.remove();
@@ -1458,11 +1458,72 @@
         }
       });
 
+      // Ensure every select has a Custom… option for inline editing
+      document.querySelectorAll('select.field-select').forEach(function (sel) {
+        if (!Array.from(sel.options).some(o => o.value === '__custom__')) {
+          const opt = document.createElement('option');
+          opt.value = '__custom__';
+          opt.textContent = 'Custom';
+          sel.appendChild(opt);
+        }
+      });
+
+      // Attach handler to show an inline input when Custom… is chosen
+      document.querySelectorAll('select.field-select').forEach(function (sel) {
+        sel.addEventListener('change', function () {
+          if (sel.value === '__custom__') {
+            // Create input positioned in-flow to preserve layout
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.value = '';
+            input.placeholder = 'Type value…';
+            input.style.width = getComputedStyle(sel).width;
+            input.style.height = getComputedStyle(sel).height;
+            input.style.border = getComputedStyle(sel).border;
+            input.style.borderRadius = getComputedStyle(sel).borderRadius;
+            input.style.padding = '0 4px';
+            input.style.fontSize = getComputedStyle(sel).fontSize;
+            input.style.outline = 'none';
+            // Insert just before select, hide select temporarily
+            sel.style.display = 'none';
+            sel.parentNode.insertBefore(input, sel);
+            input.focus();
+
+            function commit() {
+              const val = input.value.trim();
+              if (val) {
+                // If option with same text exists, select it; else add a new option
+                let existing = Array.from(sel.options).find(o => o.value === val);
+                if (!existing) {
+                  const newOpt = document.createElement('option');
+                  newOpt.value = val;
+                  newOpt.textContent = val;
+                  sel.insertBefore(newOpt, sel.options[sel.options.length - 1]); // before Custom…
+                  existing = newOpt;
+                }
+                sel.value = existing.value;
+              } else {
+                sel.value = '';
+              }
+              input.remove();
+              sel.style.display = '';
+              sel.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+
+            input.addEventListener('keydown', function (e) {
+              if (e.key === 'Enter') commit();
+              if (e.key === 'Escape') { input.remove(); sel.style.display=''; sel.value=''; }
+            });
+            input.addEventListener('blur', commit);
+          }
+        });
+      });
+
       // Insert day labels header above the first row, aligned with the six columns
       if (!document.querySelector('.columns-header')) {
         const firstRow = document.querySelector('.field-row');
         if (firstRow) {
-          const firstSelect = firstRow.querySelector('select.field-select');
+  const firstSelect = firstRow.querySelector('select.field-select');
           const header = document.createElement('div');
           header.className = 'columns-header';
           ['Fr', 'Mon', 'Tue', 'Wed', 'Thu', 'Fr'].forEach(function (d) {
@@ -1475,20 +1536,158 @@
           // Insert header before the first row
           firstRow.parentNode.insertBefore(header, firstRow);
 
-          // Align header with the first select's left edge and width
+          // Align header with the first select's left edge
           if (firstSelect) {
             const rowRect = firstRow.getBoundingClientRect();
             const selRect = firstSelect.getBoundingClientRect();
             const leftPad = Math.max(0, Math.round(selRect.left - rowRect.left));
             header.style.paddingLeft = leftPad + 'px';
-            const colW = Math.round(firstSelect.offsetWidth);
-            if (colW > 0) {
-              document.documentElement.style.setProperty('--col-width', colW + 'px');
-            }
           }
         }
       }
     });
   </script>
   </body>
+  <script>
+  // Fix: After choosing a custom value, ensure the dropdown is usable again
+  // Date: 2025-09-27
+  (() => {
+    const CUSTOM_VALUE = '__custom__';
+    const CUSTOM_LABEL = 'Custom';
+
+    function ensureCustomOption(select) {
+      if (!select) return;
+      const hasCustom = Array.from(select.options).some(o => o.value === CUSTOM_VALUE);
+      if (!hasCustom) {
+        const opt = new Option(CUSTOM_LABEL, CUSTOM_VALUE);
+        select.add(opt);
+      }
+    }
+
+    function findOption(select, value) {
+      return Array.from(select.options).find(o => o.value === value);
+    }
+
+    function openCustomEditor(select) {
+      if (!select || select.dataset.editing === '1') return;
+      select.dataset.editing = '1';
+
+      const previous = select.dataset.prevValue || '';
+
+      // Create an input exactly where the select is
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.value = '';
+      input.setAttribute('data-role', 'custom-editor');
+
+      // Size and style to match select dimensions
+      const rect = select.getBoundingClientRect();
+      const style = getComputedStyle(select);
+      input.style.width = rect.width + 'px';
+      input.style.height = rect.height + 'px';
+      input.style.boxSizing = 'border-box';
+      input.style.font = style.font;
+      input.style.padding = style.padding;
+      input.style.margin = style.margin;
+
+      // Insert right after the select and hide the select
+      select.insertAdjacentElement('afterend', input);
+      select.hidden = true;
+
+      const cleanup = () => {
+        input.remove();
+        select.hidden = false;
+        select.dataset.editing = '';
+        // Return focus to the select so the user can immediately open it again
+        select.focus();
+      };
+
+      const commit = () => {
+        const typed = input.value.trim();
+        // If nothing typed, just cancel
+        if (!typed) {
+          cancel();
+          return;
+        }
+
+        // Make sure the "Custom…" option still exists for future edits
+        ensureCustomOption(select);
+
+        // Add or reuse an option matching the typed value
+        let opt = findOption(select, typed);
+        if (!opt) {
+          opt = new Option(typed, typed);
+          // Place before the custom option if present, else append
+          const customOpt = findOption(select, CUSTOM_VALUE);
+          if (customOpt && customOpt.parentElement === select) {
+            select.add(opt, customOpt);
+          } else {
+            select.add(opt);
+          }
+        }
+
+        // Select the typed value
+        select.value = typed;
+
+        cleanup();
+        // Fire change to notify any listeners
+        select.dispatchEvent(new Event('change', { bubbles: true }));
+      };
+
+      const cancel = () => {
+        // Restore previous value if it still exists, else clear selection
+        if (previous && findOption(select, previous)) {
+          select.value = previous;
+        } else {
+          // Fallback: if custom exists, move back to it; otherwise first option
+          const customOpt = findOption(select, CUSTOM_VALUE);
+          select.value = customOpt ? CUSTOM_VALUE : (select.options[0]?.value ?? '');
+        }
+        cleanup();
+      };
+
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          commit();
+        } else if (e.key === 'Escape') {
+          e.preventDefault();
+          cancel();
+        }
+      });
+      input.addEventListener('blur', () => {
+        // Commit on blur for a smoother UX
+        commit();
+      });
+
+      input.focus();
+      input.select();
+    }
+
+    // Ensure every select has the Custom… option available
+    document.querySelectorAll('select.field-select').forEach(ensureCustomOption);
+
+    // Use a delegated change listener in capture phase. If user chooses Custom…, we intercept
+    // and open the inline editor, then stop other handlers from acting on the temporary state.
+    document.addEventListener('change', (ev) => {
+      const target = ev.target;
+      if (!(target instanceof HTMLSelectElement)) return;
+      if (!target.classList.contains('field-select')) return;
+      if (target.value !== CUSTOM_VALUE) return;
+
+      // Remember previous value so we can restore on cancel
+      target.dataset.prevValue = target.dataset.prevValue ?? '';
+      // If the user had a real value before choosing Custom…, store it
+      const current = target.options[target.selectedIndex]?.value;
+      if (current && current !== CUSTOM_VALUE) {
+        target.dataset.prevValue = current;
+      }
+
+      // Open editor and prevent further propagation of this change
+      openCustomEditor(target);
+      ev.stopImmediatePropagation();
+      ev.stopPropagation();
+    }, true);
+  })();
+  </script>
   </html>
