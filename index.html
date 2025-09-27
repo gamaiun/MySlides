@@ -82,7 +82,7 @@
         overflow: hidden;
         box-sizing: border-box;
         /* Reduce top padding to bring content closer to the top */
-        padding: 8px 20px 20px 8px;
+        padding: 8px 8px 20px 8px;
         display: flex;
         flex-direction: column;
         background-color: rgb(233, 215, 215); /* Change background to white */
@@ -161,9 +161,9 @@
         padding-right: 20px; /* Adjust this to fine-tune right-side spacing */
       }
       .overlay-textarea {
-        width: 200px;
-        min-width: 200px;
-        max-width: 200px;
+        width: 70px;
+        min-width: 70px;
+        max-width: 70px;
         box-sizing: border-box;
         font-family: Arial, sans-serif;
         font-size: 14px;
@@ -216,13 +216,42 @@
         display: flex;
         align-items: center;
         margin-bottom: 2px;
+        gap: 4px;
       }
       .field-label {
         min-width: 70px;
         font-size: 13px;
         color: #222;
-        margin-right: 8px;
       }
+      .field-select {
+        width: 72px;
+        height: 20px;
+        border: 1px solid #e5e0e0;
+        border-radius: 10px;
+        background-color: white;
+        color: black;
+        font-size: 13px;
+        padding: 0 4px;
+        outline: none;
+      }
+      .field-select:focus {
+        border-color: #aaa;
+      }
+
+      /* Make the four left textareas half width */
+      #toFindInput,
+      #measureInput,
+      #ofSizeInput,
+      #fromInput {
+        flex: 0 0 50%;
+        width: 50%;
+      }
+
+      /* Make all small textareas 50px wide */
+      textarea[style*="width: 50px"] {
+        width: 50px !important;
+      }
+
       @media (prefers-color-scheme: dark) {
         body {
           background-color: #2e2e2e;
@@ -257,7 +286,7 @@
     <div id="layout">
       <!-- overlay header sits on top of image area -->
       <div class="overlay-header">
-        <div class="top-header-row">
+        <div class="top-header-row" style="padding-right: 20px;">
           <div
             id="datetimeHeader"
             contenteditable="true"
@@ -268,36 +297,287 @@
               white-space: nowrap;
               overflow: hidden;
               text-overflow: ellipsis;
+              padding-right: 20px;
             "
           ></div>
-          <div id="date-under-commentary" class="field-label"></div>
+          <div id="date-under-commentary" class="field-label" style="padding-right: 20px;"></div>
         </div>
-  <div style="display: flex; height: 100px; min-height: 100px; width: 100%; box-sizing: border-box; padding-right: 20px;">
+  <div style="display: flex; height: 100px; min-height: 100px; width: 100%; box-sizing: border-box; gap: 0;">
           <!-- Left column -->
-          <div style="width: 320px; margin-right: 8px; flex-shrink: 0;">
+          <div style="width: 480px; flex-shrink: 0;">
             <div class="field-row">
               <label for="toFindInput" class="field-label">To Find:</label>
               <textarea id="toFindInput" class="overlay-textarea"></textarea>
+              <select class="field-select">
+                <option value=""></option>
+                <option value="Qt-Wt">Qt-Wt</option>
+                <option value="Wt-Et">Wt-Et</option>
+                <option value="Et-Rt">Et-Rt</option>
+                <option value="Rt-Tt">Rt-Tt</option>
+                <option value="Tt-Yt">Tt-Yt</option>
+                <option value="Yt-Ut">Yt-Ut</option>
+                <option value="Ut-Pt">Ut-Pt</option>
+                <option value="Pt-At">Pt-At</option>
+                <option value="At-St">At-St</option>
+                <option value="St-Dt">St-Dt</option>
+                <option value="Dt-Ft">Dt-Ft</option>
+                <option value="Ft-Gt">Ft-Gt</option>
+                <option value="Gt-Ht">Gt-Ht</option>
+                <option value="Ht-Jt">Ht-Jt</option>
+                <option value="Jt-Kt">Jt-Kt</option>
+                <option value="Lt-Zt">Lt-Zt</option>
+                <option value="Zt-Ct">Zt-Ct</option>
+                <option value="Ct-Vt">Ct-Vt</option>
+                <option value="Vt-Bt">Vt-Bt</option>
+                <option value="Bt-Nt">Bt-Nt</option>
+                <option value="Nt-Mt">Nt-Mt</option>
+              </select>
+              <textarea style="width: 50px; height: 20px; border: 1px solid #e5e0e0; border-radius: 10px; background-color: white; color: black; font-size: 13px; padding: 0 4px; outline: none; resize: none; box-sizing: border-box; font-family: Arial, sans-serif; margin-left: 4px;"></textarea>
+              <select class="field-select" style="margin-left: 8px;">
+                <option value=""></option>
+                <option value="Qt-Wt">Qt-Wt</option>
+                <option value="Wt-Et">Wt-Et</option>
+                <option value="Et-Rt">Et-Rt</option>
+                <option value="Rt-Tt">Rt-Tt</option>
+                <option value="Tt-Yt">Tt-Yt</option>
+                <option value="Yt-Ut">Yt-Ut</option>
+                <option value="Ut-Pt">Ut-Pt</option>
+                <option value="Pt-At">Pt-At</option>
+                <option value="At-St">At-St</option>
+                <option value="St-Dt">St-Dt</option>
+                <option value="Dt-Ft">Dt-Ft</option>
+                <option value="Ft-Gt">Ft-Gt</option>
+                <option value="Gt-Ht">Gt-Ht</option>
+                <option value="Ht-Jt">Ht-Jt</option>
+                <option value="Jt-Kt">Jt-Kt</option>
+                <option value="Lt-Zt">Lt-Zt</option>
+                <option value="Zt-Ct">Zt-Ct</option>
+                <option value="Ct-Vt">Ct-Vt</option>
+                <option value="Vt-Bt">Vt-Bt</option>
+                <option value="Bt-Nt">Bt-Nt</option>
+                <option value="Nt-Mt">Nt-Mt</option>
+              </select>
+              <textarea style="width: 50px; height: 20px; border: 1px solid #e5e0e0; border-radius: 10px; background-color: white; color: black; font-size: 13px; padding: 0 4px; outline: none; resize: none; box-sizing: border-box; font-family: Arial, sans-serif; margin-left: 4px;"></textarea>
             </div>
             <div class="field-row">
               <label for="measureInput" class="field-label">Measure:</label>
               <textarea id="measureInput" class="overlay-textarea"></textarea>
+              <select class="field-select">
+                <option value=""></option>
+                <option value="Qt-Wt">Qt-Wt</option>
+                <option value="Wt-Et">Wt-Et</option>
+                <option value="Et-Rt">Et-Rt</option>
+                <option value="Rt-Tt">Rt-Tt</option>
+                <option value="Tt-Yt">Tt-Yt</option>
+                <option value="Yt-Ut">Yt-Ut</option>
+                <option value="Ut-Pt">Ut-Pt</option>
+                <option value="Pt-At">Pt-At</option>
+                <option value="At-St">At-St</option>
+                <option value="St-Dt">St-Dt</option>
+                <option value="Dt-Ft">Dt-Ft</option>
+                <option value="Ft-Gt">Ft-Gt</option>
+                <option value="Gt-Ht">Gt-Ht</option>
+                <option value="Ht-Jt">Ht-Jt</option>
+                <option value="Jt-Kt">Jt-Kt</option>
+                <option value="Lt-Zt">Lt-Zt</option>
+                <option value="Zt-Ct">Zt-Ct</option>
+                <option value="Ct-Vt">Ct-Vt</option>
+                <option value="Vt-Bt">Vt-Bt</option>
+                <option value="Bt-Nt">Bt-Nt</option>
+                <option value="Nt-Mt">Nt-Mt</option>
+              </select>
+              <textarea style="width: 50px; height: 20px; border: 1px solid #e5e0e0; border-radius: 10px; background-color: white; color: black; font-size: 13px; padding: 0 4px; outline: none; resize: none; box-sizing: border-box; font-family: Arial, sans-serif; margin-left: 4px;"></textarea>
+              <select class="field-select" style="margin-left: 8px;">
+                <option value=""></option>
+                <option value="Qt-Wt">Qt-Wt</option>
+                <option value="Wt-Et">Wt-Et</option>
+                <option value="Et-Rt">Et-Rt</option>
+                <option value="Rt-Tt">Rt-Tt</option>
+                <option value="Tt-Yt">Tt-Yt</option>
+                <option value="Yt-Ut">Yt-Ut</option>
+                <option value="Ut-Pt">Ut-Pt</option>
+                <option value="Pt-At">Pt-At</option>
+                <option value="At-St">At-St</option>
+                <option value="St-Dt">St-Dt</option>
+                <option value="Dt-Ft">Dt-Ft</option>
+                <option value="Ft-Gt">Ft-Gt</option>
+                <option value="Gt-Ht">Gt-Ht</option>
+                <option value="Ht-Jt">Ht-Jt</option>
+                <option value="Jt-Kt">Jt-Kt</option>
+                <option value="Lt-Zt">Lt-Zt</option>
+                <option value="Zt-Ct">Zt-Ct</option>
+                <option value="Ct-Vt">Ct-Vt</option>
+                <option value="Vt-Bt">Vt-Bt</option>
+                <option value="Bt-Nt">Bt-Nt</option>
+                <option value="Nt-Mt">Nt-Mt</option>
+              </select>
+              <textarea style="width: 50px; height: 20px; border: 1px solid #e5e0e0; border-radius: 10px; background-color: white; color: black; font-size: 13px; padding: 0 4px; outline: none; resize: none; box-sizing: border-box; font-family: Arial, sans-serif; margin-left: 4px;"></textarea>
             </div>
             <div class="field-row">
               <label for="ofSizeInput" class="field-label">Of Size:</label>
               <textarea id="ofSizeInput" class="overlay-textarea"></textarea>
+              <select class="field-select">
+                <option value=""></option>
+                <option value="Qt-Wt">Qt-Wt</option>
+                <option value="Wt-Et">Wt-Et</option>
+                <option value="Et-Rt">Et-Rt</option>
+                <option value="Rt-Tt">Rt-Tt</option>
+                <option value="Tt-Yt">Tt-Yt</option>
+                <option value="Yt-Ut">Yt-Ut</option>
+                <option value="Ut-Pt">Ut-Pt</option>
+                <option value="Pt-At">Pt-At</option>
+                <option value="At-St">At-St</option>
+                <option value="St-Dt">St-Dt</option>
+                <option value="Dt-Ft">Dt-Ft</option>
+                <option value="Ft-Gt">Ft-Gt</option>
+                <option value="Gt-Ht">Gt-Ht</option>
+                <option value="Ht-Jt">Ht-Jt</option>
+                <option value="Jt-Kt">Jt-Kt</option>
+                <option value="Lt-Zt">Lt-Zt</option>
+                <option value="Zt-Ct">Zt-Ct</option>
+                <option value="Ct-Vt">Ct-Vt</option>
+                <option value="Vt-Bt">Vt-Bt</option>
+                <option value="Bt-Nt">Bt-Nt</option>
+                <option value="Nt-Mt">Nt-Mt</option>
+              </select>
+              <textarea style="width: 50px; height: 20px; border: 1px solid #e5e0e0; border-radius: 10px; background-color: white; color: black; font-size: 13px; padding: 0 4px; outline: none; resize: none; box-sizing: border-box; font-family: Arial, sans-serif; margin-left: 4px;"></textarea>
+              <select class="field-select" style="margin-left: 8px;">
+                <option value=""></option>
+                <option value="Qt-Wt">Qt-Wt</option>
+                <option value="Wt-Et">Wt-Et</option>
+                <option value="Et-Rt">Et-Rt</option>
+                <option value="Rt-Tt">Rt-Tt</option>
+                <option value="Tt-Yt">Tt-Yt</option>
+                <option value="Yt-Ut">Yt-Ut</option>
+                <option value="Ut-Pt">Ut-Pt</option>
+                <option value="Pt-At">Pt-At</option>
+                <option value="At-St">At-St</option>
+                <option value="St-Dt">St-Dt</option>
+                <option value="Dt-Ft">Dt-Ft</option>
+                <option value="Ft-Gt">Ft-Gt</option>
+                <option value="Gt-Ht">Gt-Ht</option>
+                <option value="Ht-Jt">Ht-Jt</option>
+                <option value="Jt-Kt">Jt-Kt</option>
+                <option value="Lt-Zt">Lt-Zt</option>
+                <option value="Zt-Ct">Zt-Ct</option>
+                <option value="Ct-Vt">Ct-Vt</option>
+                <option value="Vt-Bt">Vt-Bt</option>
+                <option value="Bt-Nt">Bt-Nt</option>
+                <option value="Nt-Mt">Nt-Mt</option>
+              </select>
+              <textarea style="width: 50px; height: 20px; border: 1px solid #e5e0e0; border-radius: 10px; background-color: white; color: black; font-size: 13px; padding: 0 4px; outline: none; resize: none; box-sizing: border-box; font-family: Arial, sans-serif; margin-left: 4px;"></textarea>
             </div>
             <div class="field-row">
               <label for="fromInput" class="field-label">From:</label>
               <textarea id="fromInput" class="overlay-textarea"></textarea>
+              <select class="field-select">
+                <option value=""></option>
+                <option value="Qt-Wt">Qt-Wt</option>
+                <option value="Wt-Et">Wt-Et</option>
+                <option value="Et-Rt">Et-Rt</option>
+                <option value="Rt-Tt">Rt-Tt</option>
+                <option value="Tt-Yt">Tt-Yt</option>
+                <option value="Yt-Ut">Yt-Ut</option>
+                <option value="Ut-Pt">Ut-Pt</option>
+                <option value="Pt-At">Pt-At</option>
+                <option value="At-St">At-St</option>
+                <option value="St-Dt">St-Dt</option>
+                <option value="Dt-Ft">Dt-Ft</option>
+                <option value="Ft-Gt">Ft-Gt</option>
+                <option value="Gt-Ht">Gt-Ht</option>
+                <option value="Ht-Jt">Ht-Jt</option>
+                <option value="Jt-Kt">Jt-Kt</option>
+                <option value="Lt-Zt">Lt-Zt</option>
+                <option value="Zt-Ct">Zt-Ct</option>
+                <option value="Ct-Vt">Ct-Vt</option>
+                <option value="Vt-Bt">Vt-Bt</option>
+                <option value="Bt-Nt">Bt-Nt</option>
+                <option value="Nt-Mt">Nt-Mt</option>
+              </select>
+              <textarea style="width: 50px; height: 20px; border: 1px solid #e5e0e0; border-radius: 10px; background-color: white; color: black; font-size: 13px; padding: 0 4px; outline: none; resize: none; box-sizing: border-box; font-family: Arial, sans-serif; margin-left: 4px;"></textarea>
+              <select class="field-select" style="margin-left: 8px;">
+                <option value=""></option>
+                <option value="Qt-Wt">Qt-Wt</option>
+                <option value="Wt-Et">Wt-Et</option>
+                <option value="Et-Rt">Et-Rt</option>
+                <option value="Rt-Tt">Rt-Tt</option>
+                <option value="Tt-Yt">Tt-Yt</option>
+                <option value="Yt-Ut">Yt-Ut</option>
+                <option value="Ut-Pt">Ut-Pt</option>
+                <option value="Pt-At">Pt-At</option>
+                <option value="At-St">At-St</option>
+                <option value="St-Dt">St-Dt</option>
+                <option value="Dt-Ft">Dt-Ft</option>
+                <option value="Ft-Gt">Ft-Gt</option>
+                <option value="Gt-Ht">Gt-Ht</option>
+                <option value="Ht-Jt">Ht-Jt</option>
+                <option value="Jt-Kt">Jt-Kt</option>
+                <option value="Lt-Zt">Lt-Zt</option>
+                <option value="Zt-Ct">Zt-Ct</option>
+                <option value="Ct-Vt">Ct-Vt</option>
+                <option value="Vt-Bt">Vt-Bt</option>
+                <option value="Bt-Nt">Bt-Nt</option>
+                <option value="Nt-Mt">Nt-Mt</option>
+              </select>
+              <textarea style="width: 50px; height: 20px; border: 1px solid #e5e0e0; border-radius: 10px; background-color: white; color: black; font-size: 13px; padding: 0 4px; outline: none; resize: none; box-sizing: border-box; font-family: Arial, sans-serif; margin-left: 4px;"></textarea>
             </div>
             <div class="field-row">
               <span class="field-label">Comment:</span>
               <textarea class="overlay-textarea" rows="1"></textarea>
+              <select class="field-select">
+                <option value=""></option>
+                <option value="Qt-Wt">Qt-Wt</option>
+                <option value="Wt-Et">Wt-Et</option>
+                <option value="Et-Rt">Et-Rt</option>
+                <option value="Rt-Tt">Rt-Tt</option>
+                <option value="Tt-Yt">Tt-Yt</option>
+                <option value="Yt-Ut">Yt-Ut</option>
+                <option value="Ut-Pt">Ut-Pt</option>
+                <option value="Pt-At">Pt-At</option>
+                <option value="At-St">At-St</option>
+                <option value="St-Dt">St-Dt</option>
+                <option value="Dt-Ft">Dt-Ft</option>
+                <option value="Ft-Gt">Ft-Gt</option>
+                <option value="Gt-Ht">Gt-Ht</option>
+                <option value="Ht-Jt">Ht-Jt</option>
+                <option value="Jt-Kt">Jt-Kt</option>
+                <option value="Lt-Zt">Lt-Zt</option>
+                <option value="Zt-Ct">Zt-Ct</option>
+                <option value="Ct-Vt">Ct-Vt</option>
+                <option value="Vt-Bt">Vt-Bt</option>
+                <option value="Bt-Nt">Bt-Nt</option>
+                <option value="Nt-Mt">Nt-Mt</option>
+              </select>
+              <textarea style="width: 50px; height: 20px; border: 1px solid #e5e0e0; border-radius: 10px; background-color: white; color: black; font-size: 13px; padding: 0 4px; outline: none; resize: none; box-sizing: border-box; font-family: Arial, sans-serif; margin-left: 4px;"></textarea>
+              <select class="field-select" style="margin-left: 8px;">
+                <option value=""></option>
+                <option value="Qt-Wt">Qt-Wt</option>
+                <option value="Wt-Et">Wt-Et</option>
+                <option value="Et-Rt">Et-Rt</option>
+                <option value="Rt-Tt">Rt-Tt</option>
+                <option value="Tt-Yt">Tt-Yt</option>
+                <option value="Yt-Ut">Yt-Ut</option>
+                <option value="Ut-Pt">Ut-Pt</option>
+                <option value="Pt-At">Pt-At</option>
+                <option value="At-St">At-St</option>
+                <option value="St-Dt">St-Dt</option>
+                <option value="Dt-Ft">Dt-Ft</option>
+                <option value="Ft-Gt">Ft-Gt</option>
+                <option value="Gt-Ht">Gt-Ht</option>
+                <option value="Ht-Jt">Ht-Jt</option>
+                <option value="Jt-Kt">Jt-Kt</option>
+                <option value="Lt-Zt">Lt-Zt</option>
+                <option value="Zt-Ct">Zt-Ct</option>
+                <option value="Ct-Vt">Ct-Vt</option>
+                <option value="Vt-Bt">Vt-Bt</option>
+                <option value="Bt-Nt">Bt-Nt</option>
+                <option value="Nt-Mt">Nt-Mt</option>
+              </select>
+              <textarea style="width: 50px; height: 20px; border: 1px solid #e5e0e0; border-radius: 10px; background-color: white; color: black; font-size: 13px; padding: 0 4px; outline: none; resize: none; box-sizing: border-box; font-family: Arial, sans-serif; margin-left: 4px;"></textarea>
             </div>
           </div>
           <!-- Right column -->
-          <div style="flex: 1; min-width: 0; margin-right: 8px;">
+          <div style="flex: 1; min-width: 0; padding-right: 20px;">
             <textarea id="rightBigField" spellcheck="true" lang="en" data-enable-grammarly="true" data-gramm="true" contenteditable="true" style="width: 100%; height: 100%; resize: none; margin: 0; box-sizing: border-box; border: 1px solid #e5e0e0; border-radius: 10px; padding: 8px; font-family: Arial, sans-serif; font-size: 14px; background-color: white; color: black;"></textarea>
           </div>
       <style>
