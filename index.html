@@ -47,6 +47,44 @@
     box-sizing: border-box !important;
   }
 
+  /* --- Three-column layout proportions for print --- */
+  div[style*="display: flex; height: 140px"] {
+    height: 120px !important; /* Slightly smaller for print */
+  }
+  
+  /* Left column (dropdowns) - maintain 430px width */
+  div[style*="width: 430px"] {
+    width: 430px !important;
+    flex-shrink: 0 !important;
+  }
+  
+  /* Middle column (canvas) - maintain flex: 1 behavior but with constraints */
+  div[style*="flex: 1"][style*="position: relative"] {
+    flex: 1 !important;
+    min-width: 300px !important;
+    max-width: 500px !important;
+  }
+  
+  /* Right column (textarea) - maintain 420px width */  
+  div[style*="width: 420px"] {
+    width: 420px !important;
+    margin-left: auto !important;
+  }
+  
+  /* Canvas should fill its container properly */
+  #drawing-canvas {
+    width: 100% !important;
+    height: 100% !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+  }
+  
+  /* Hide the mode button in print */
+  #text-tool-btn {
+    display: none !important;
+  }
+
   #imageContainer img {
     position: absolute !important;
     bottom: 0 !important;
@@ -1234,11 +1272,22 @@
           img.style.margin = "";
           img.style.padding = "";
         });
+        
+        // Redraw canvas with print scaling
+        if (window.redrawCanvas) {
+          window.redrawCanvas();
+        }
       }
+      
+      function restoreScreenStyles() {
+        // Redraw canvas with normal scaling
+        if (window.redrawCanvas) {
+          window.redrawCanvas();
+        }
+      }
+      
       window.addEventListener("beforeprint", applyPrintImageStyles);
-      window.addEventListener("afterprint", () => {
-        // Optionally restore app styles after printing if needed
-      });
+      window.addEventListener("afterprint", restoreScreenStyles);
 
       function padZero(num) {
         return num < 10 ? "0" + num : num;
@@ -1781,9 +1830,13 @@
       function redrawCanvas() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         
+        // Determine if we're in print mode and scale accordingly
+        const isPrinting = window.matchMedia('print').matches;
+        const scaleFactor = isPrinting ? 3 : 1; // Scale up 3x for printing
+        
         // Draw lines
         ctx.strokeStyle = '#333';
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 2 * scaleFactor;
         ctx.lineCap = 'round';
         for (let line of lines) {
           ctx.beginPath();
@@ -1792,9 +1845,10 @@
           ctx.stroke();
         }
         
-        // Draw text labels
+        // Draw text labels with larger font for printing
         ctx.fillStyle = '#333';
-        ctx.font = '11px Arial';
+        const fontSize = Math.round(11 * scaleFactor);
+        ctx.font = `${fontSize}px Arial`;
         ctx.textBaseline = 'bottom';
         for (let text of texts) {
           ctx.fillText(text.content, text.x, text.y);
@@ -2066,6 +2120,9 @@
       canvas.style.cursor = 'crosshair';
       window.addEventListener('resize', resizeCanvas);
       setTimeout(resizeCanvas, 100); // Initial resize after DOM settles
+      
+      // Make redrawCanvas available globally for print handling
+      window.redrawCanvas = redrawCanvas;
     })();
   </script>
   </html>
