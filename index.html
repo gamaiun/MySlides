@@ -277,6 +277,7 @@
         }
       }
     </style>
+
   </head>
   <body>
     <!-- header moved to overlay inside #layout to free vertical space -->
@@ -288,10 +289,10 @@
       <div class="overlay-header">
   <div style="display: flex; height: 140px; min-height: 140px; width: 100%; box-sizing: border-box; gap: 0;">
           <!-- Left column -->
-          <div style="width: 600px; flex-shrink: 0;">
+          <div style="width: 430px; flex-shrink: 0;">
             <div class="field-row">
               <label for="toFindInput" class="field-label">To Find:</label>
-              <textarea id="toFindInput" class="overlay-textarea"></textarea>
+              <!-- <textarea id="toFindInput" class="overlay-textarea"></textarea> -->
               <select class="field-select">
                 <option value=""></option>
                 <option value="Qt-Wt">Qt-Wt</option>
@@ -445,7 +446,7 @@
             </div>
             <div class="field-row">
               <label for="measureInput" class="field-label">Measure:</label>
-              <textarea id="measureInput" class="overlay-textarea"></textarea>
+              <!-- <textarea id="measureInput" class="overlay-textarea"></textarea> -->
               <select class="field-select">
                 <option value=""></option>
                 <option value="Qt-Wt">Qt-Wt</option>
@@ -574,7 +575,7 @@
             </div>
             <div class="field-row">
               <label for="ofSizeInput" class="field-label">Of Size:</label>
-              <textarea id="ofSizeInput" class="overlay-textarea"></textarea>
+              <!-- <textarea id="ofSizeInput" class="overlay-textarea"></textarea> -->
               <select class="field-select">
                 <option value=""></option>
                 <option value="Qt-Wt">Qt-Wt</option>
@@ -703,7 +704,7 @@
             </div>
             <div class="field-row">
               <label for="fromInput" class="field-label">From:</label>
-              <textarea id="fromInput" class="overlay-textarea"></textarea>
+              <!-- <textarea id="fromInput" class="overlay-textarea"></textarea> -->
               <select class="field-select">
                 <option value=""></option>
                 <option value="Qt-Wt">Qt-Wt</option>
@@ -832,7 +833,7 @@
             </div>
             <div class="field-row">
               <span class="field-label">Comment:</span>
-              <textarea class="overlay-textarea" rows="1"></textarea>
+              <!-- <textarea class="overlay-textarea" rows="1"></textarea> -->
               <select class="field-select">
                 <option value=""></option>
                 <option value="Qt-Wt">Qt-Wt</option>
@@ -960,8 +961,13 @@
               <textarea style="width: 50px; height: 20px; border: 1px solid #e5e0e0; border-radius: 10px; background-color: white; color: black; font-size: 13px; padding: 0 4px; outline: none; resize: none; box-sizing: border-box; font-family: Arial, sans-serif; margin-left: 4px;"></textarea>
             </div>
           </div>
+          <!-- Spacer column for canvas -->
+          <div style="flex: 1; position: relative; border: 1px solid #ddd; background-color: #f9f9f9;">
+            <canvas id="drawing-canvas" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></canvas>
+            <button id="text-tool-btn" style="position: absolute; bottom: 7px; left: 7px; width: 15px; height: 15px; border: 1px solid #ccc; background: white; font-size: 10px; font-weight: bold; cursor: pointer; border-radius: 2px; padding: 0; margin: 0; display: flex; align-items: center; justify-content: center;">L</button>
+          </div>
           <!-- Right column -->
-          <div style="flex: 1; min-width: 0; padding-right: 20px; padding-left: 20px; display: flex; flex-direction: column; width: 600px;">
+          <div style="min-width: 0; padding-right: 20px; padding-left: 15px; display: flex; flex-direction: column; width: 420px; margin-left: auto;">
             <div class="top-header-row" style="padding-right: 0px; margin-bottom: 6px; padding-top: 4px;">
               <div
                 id="datetimeHeader"
@@ -978,7 +984,7 @@
               ></div>
               <div id="date-under-commentary" class="field-label" style="padding-right: 0px;"></div>
             </div>
-            <textarea id="rightBigField" spellcheck="true" lang="en" data-enable-grammarly="true" data-gramm="true" contenteditable="true" style="width: 100%; flex: 1; resize: none; margin: 0; box-sizing: border-box; border: 1px solid #e5e0e0; border-radius: 10px; padding: 8px; font-family: Arial, sans-serif; font-size: 14px; background-color: white; color: black;"></textarea>
+            <textarea id="rightBigField" spellcheck="true" lang="en" data-enable-grammarly="true" data-gramm="true" contenteditable="true" style="width: 100%; flex: 1; resize: none; margin: 0; box-sizing: border-box; border: 1px solid #e5e0e0; border-radius: 10px; padding: 8px; font-family: Arial, sans-serif; font-size: 12px; background-color: white; color: black;"></textarea>
           </div>
       <style>
         .fields-row {
@@ -1355,12 +1361,11 @@
       // Listen for menu-triggered save
       window.electronAPI.onTriggerSaveData(() => {
         const data = {
-          toFind: document.getElementById("toFindInput").value,
-          measure: document.getElementById("measureInput").value,
-          ofSize: document.getElementById("ofSizeInput").value,
-          from: document.getElementById("fromInput").value,
-          comment: document.querySelector(".field-row:last-child textarea")
-            .value,
+          toFind: document.getElementById("toFindInput")?.value || "",
+          measure: document.getElementById("measureInput")?.value || "",
+          ofSize: document.getElementById("ofSizeInput")?.value || "",
+          from: document.getElementById("fromInput")?.value || "",
+          comment: document.querySelector(".field-row:last-child textarea")?.value || "",
           printed: document.getElementById("date-under-commentary").textContent,
           title: document.getElementById("datetimeHeader").textContent,
           timestamp: new Date().toISOString(),
@@ -1420,6 +1425,15 @@
   <script>
   // Remove only the small 50px textareas that immediately follow dropdowns
     document.addEventListener('DOMContentLoaded', function () {
+      // Remove left-side labels to free space: To Find, Measure, Of Size, From, Comment
+      const labelsToRemove = new Set(['To Find:', 'Measure:', 'Of Size:', 'From:', 'Comment:']);
+      document.querySelectorAll('.field-row .field-label').forEach(function (el) {
+        const txt = (el.textContent || '').trim();
+        if (labelsToRemove.has(txt)) {
+          el.remove();
+        }
+      });
+
       document.querySelectorAll('.field-row select + textarea').forEach(function (el) {
         el.remove();
       });
@@ -1689,5 +1703,369 @@
       ev.stopPropagation();
     }, true);
   })();
+  </script>
+  <script>
+    // Canvas drawing functionality
+    (() => {
+      const canvas = document.getElementById('drawing-canvas');
+      const modeButton = document.getElementById('text-tool-btn');
+      if (!canvas || !modeButton) return;
+      
+      const ctx = canvas.getContext('2d');
+      let lines = [];
+      let texts = [];
+      let isDrawing = false;
+      let isDragging = false;
+      let currentLine = null;
+      let dragLine = null;
+      let dragText = null;
+      let dragOffset = { x: 0, y: 0 };
+      let mode = 'line'; // 'line' or 'text'
+      
+      // Set canvas size to match container
+      function resizeCanvas() {
+        const rect = canvas.getBoundingClientRect();
+        canvas.width = rect.width;
+        canvas.height = rect.height;
+        redrawCanvas();
+      }
+      
+      // Get precise cursor position relative to canvas
+      function getCursorPos(e) {
+        const rect = canvas.getBoundingClientRect();
+        return {
+          x: e.clientX - rect.left,
+          y: e.clientY - rect.top
+        };
+      }
+      
+      // Check if cursor is near a line (within 5 pixels)
+      function getLineAtPosition(x, y) {
+        for (let line of lines) {
+          const distance = distanceToLine(x, y, line.startX, line.startY, line.endX, line.endY);
+          if (distance <= 5) {
+            return line;
+          }
+        }
+        return null;
+      }
+      
+      // Check if cursor is over a text label
+      function getTextAtPosition(x, y) {
+        for (let text of texts) {
+          // Simple bounding box check (approximate text dimensions)
+          const textWidth = ctx.measureText(text.content).width;
+          const textHeight = 11; // font size
+          if (x >= text.x - 2 && x <= text.x + textWidth + 2 &&
+              y >= text.y - textHeight && y <= text.y + 2) {
+            return text;
+          }
+        }
+        return null;
+      }
+      
+      // Calculate distance from point to line segment
+      function distanceToLine(px, py, x1, y1, x2, y2) {
+        const dx = x2 - x1;
+        const dy = y2 - y1;
+        const length = Math.sqrt(dx * dx + dy * dy);
+        if (length === 0) return Math.sqrt((px - x1) ** 2 + (py - y1) ** 2);
+        
+        const t = Math.max(0, Math.min(1, ((px - x1) * dx + (py - y1) * dy) / (length * length)));
+        const projX = x1 + t * dx;
+        const projY = y1 + t * dy;
+        return Math.sqrt((px - projX) ** 2 + (py - projY) ** 2);
+      }
+      
+      // Redraw all lines and text on canvas
+      function redrawCanvas() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Draw lines
+        ctx.strokeStyle = '#333';
+        ctx.lineWidth = 2;
+        ctx.lineCap = 'round';
+        for (let line of lines) {
+          ctx.beginPath();
+          ctx.moveTo(line.startX, line.startY);
+          ctx.lineTo(line.endX, line.endY);
+          ctx.stroke();
+        }
+        
+        // Draw text labels
+        ctx.fillStyle = '#333';
+        ctx.font = '11px Arial';
+        ctx.textBaseline = 'bottom';
+        for (let text of texts) {
+          ctx.fillText(text.content, text.x, text.y);
+        }
+      }
+      
+      // Custom text input function for Electron
+      function showTextInput(x, y) {
+        console.log('showTextInput called with:', x, y);
+        
+        // Create input element
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.placeholder = 'Enter text...';
+        input.style.position = 'fixed';
+        input.style.left = (canvas.getBoundingClientRect().left + x) + 'px';
+        input.style.top = (canvas.getBoundingClientRect().top + y - 15) + 'px';
+        input.style.zIndex = '10000';
+        input.style.padding = '4px 8px';
+        input.style.border = '2px solid #007acc';
+        input.style.borderRadius = '4px';
+        input.style.fontSize = '12px';
+        input.style.background = 'white';
+        input.style.outline = 'none';
+        input.style.minWidth = '20px'; // Start small
+        input.style.width = '20px'; // Start small
+        input.style.boxShadow = '0 2px 8px rgba(0,0,0,0.3)';
+        
+        console.log('Input element created, adding to document');
+        console.log('Input position - left:', input.style.left, 'top:', input.style.top);
+        
+        // Add to document
+        document.body.appendChild(input);
+        
+        // Function to auto-resize input based on content
+        function autoResize() {
+          // Create a hidden span to measure text width
+          const span = document.createElement('span');
+          span.style.visibility = 'hidden';
+          span.style.position = 'absolute';
+          span.style.fontSize = '12px';
+          span.style.fontFamily = 'Arial, sans-serif';
+          span.style.whiteSpace = 'nowrap';
+          span.textContent = input.value || input.placeholder;
+          document.body.appendChild(span);
+          
+          const textWidth = span.offsetWidth;
+          document.body.removeChild(span);
+          
+          // Set width with some padding
+          input.style.width = Math.max(20, textWidth + 20) + 'px';
+        }
+        
+        // Delay focus to ensure element is properly rendered
+        setTimeout(() => {
+          input.focus();
+          input.select();
+          autoResize(); // Initial resize
+          console.log('Input focused after delay');
+        }, 50);
+        
+        console.log('Input element added');
+        
+        // Handle input completion
+        function completeInput() {
+          const text = input.value.trim();
+          console.log('Completing input with text:', text);
+          if (text) {
+            texts.push({
+              x: x,
+              y: y,
+              content: text
+            });
+            console.log('Text added to texts array:', texts);
+            redrawCanvas();
+          }
+          if (document.body.contains(input)) {
+            document.body.removeChild(input);
+            console.log('Input element removed');
+          }
+        }
+        
+        // Handle input cancellation
+        function cancelInput() {
+          console.log('Canceling input');
+          if (document.body.contains(input)) {
+            document.body.removeChild(input);
+          }
+        }
+        
+        // Event listeners
+        input.addEventListener('keydown', (e) => {
+          console.log('Key pressed:', e.key);
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            completeInput();
+          } else if (e.key === 'Escape') {
+            e.preventDefault();
+            cancelInput();
+          }
+        });
+        
+        // Add click event to prevent canvas from receiving the click
+        input.addEventListener('click', (e) => {
+          e.stopPropagation();
+          console.log('Input clicked, preventing canvas click');
+        });
+        
+        // Add input event to track typing and auto-resize
+        input.addEventListener('input', (e) => {
+          console.log('User typing:', e.target.value);
+          autoResize();
+        });
+        
+        // Add blur event to complete input when clicking outside
+        input.addEventListener('blur', () => {
+          console.log('Input lost focus, completing');
+          completeInput();
+        });
+      }
+      
+      // Mode switching
+      modeButton.addEventListener('click', () => {
+        if (mode === 'line') {
+          mode = 'text';
+          modeButton.textContent = 'T';
+          canvas.style.cursor = 'text';
+          console.log('Switched to text mode');
+        } else {
+          mode = 'line';
+          modeButton.textContent = 'L';
+          canvas.style.cursor = 'crosshair';
+          console.log('Switched to line mode');
+        }
+      });
+      
+      // Mouse down - start drawing, dragging, or add text
+      canvas.addEventListener('mousedown', (e) => {
+        const pos = getCursorPos(e);
+        console.log('Canvas clicked at:', pos.x, pos.y, 'Mode:', mode);
+        
+        if (mode === 'line') {
+          const nearLine = getLineAtPosition(pos.x, pos.y);
+          if (nearLine) {
+            // Start dragging existing line
+            isDragging = true;
+            dragLine = nearLine;
+            dragOffset.x = pos.x - nearLine.startX;
+            dragOffset.y = pos.y - nearLine.startY;
+            canvas.style.cursor = 'move';
+          } else {
+            // Start drawing new line
+            isDrawing = true;
+            currentLine = {
+              startX: pos.x,
+              startY: pos.y,
+              endX: pos.x,
+              endY: pos.y
+            };
+          }
+        } else if (mode === 'text') {
+          const nearText = getTextAtPosition(pos.x, pos.y);
+          if (nearText) {
+            // Start dragging existing text
+            isDragging = true;
+            dragText = nearText;
+            dragOffset.x = pos.x - nearText.x;
+            dragOffset.y = pos.y - nearText.y;
+            canvas.style.cursor = 'move';
+            console.log('Dragging text:', nearText.content);
+          } else {
+            // Single click outside text - do nothing (wait for double click)
+            console.log('Single click in empty area - waiting for double click');
+          }
+        }
+      });
+      
+      // Double click handler for text mode
+      canvas.addEventListener('dblclick', (e) => {
+        if (mode === 'text') {
+          const pos = getCursorPos(e);
+          const nearText = getTextAtPosition(pos.x, pos.y);
+          if (!nearText) {
+            // Double click in empty area - add new text
+            console.log('Double click - adding new text at:', pos.x, pos.y);
+            showTextInput(pos.x, pos.y);
+          }
+        }
+      });
+      
+      // Mouse move - draw line, drag line, or drag text
+      canvas.addEventListener('mousemove', (e) => {
+        const pos = getCursorPos(e);
+        
+        if (isDrawing && currentLine && mode === 'line') {
+          // Update current line end position
+          currentLine.endX = pos.x;
+          currentLine.endY = pos.y;
+          redrawCanvas();
+          
+          // Draw current line being drawn
+          ctx.strokeStyle = '#666';
+          ctx.beginPath();
+          ctx.moveTo(currentLine.startX, currentLine.startY);
+          ctx.lineTo(currentLine.endX, currentLine.endY);
+          ctx.stroke();
+        } else if (isDragging && dragLine && mode === 'line') {
+          // Move the dragged line
+          const deltaX = pos.x - dragOffset.x - dragLine.startX;
+          const deltaY = pos.y - dragOffset.y - dragLine.startY;
+          
+          dragLine.startX += deltaX;
+          dragLine.startY += deltaY;
+          dragLine.endX += deltaX;
+          dragLine.endY += deltaY;
+          
+          redrawCanvas();
+        } else if (isDragging && dragText && mode === 'text') {
+          // Move the dragged text
+          dragText.x = pos.x - dragOffset.x;
+          dragText.y = pos.y - dragOffset.y;
+          redrawCanvas();
+        } else {
+          // Change cursor when hovering over elements
+          if (mode === 'line') {
+            const nearLine = getLineAtPosition(pos.x, pos.y);
+            canvas.style.cursor = nearLine ? 'move' : 'crosshair';
+          } else if (mode === 'text') {
+            const nearText = getTextAtPosition(pos.x, pos.y);
+            canvas.style.cursor = nearText ? 'move' : 'text';
+          }
+        }
+      });
+      
+      // Mouse up - finish drawing or dragging
+      canvas.addEventListener('mouseup', (e) => {
+        if (isDrawing && currentLine && mode === 'line') {
+          // Finish drawing line
+          lines.push(currentLine);
+          currentLine = null;
+          isDrawing = false;
+          redrawCanvas();
+        }
+        
+        if (isDragging) {
+          isDragging = false;
+          dragLine = null;
+          dragText = null;
+          canvas.style.cursor = mode === 'line' ? 'crosshair' : 'text';
+        }
+      });
+      
+      // Mouse leave - stop any current operation
+      canvas.addEventListener('mouseleave', () => {
+        if (isDrawing) {
+          isDrawing = false;
+          currentLine = null;
+          redrawCanvas();
+        }
+        if (isDragging) {
+          isDragging = false;
+          dragLine = null;
+          dragText = null;
+        }
+        canvas.style.cursor = mode === 'line' ? 'crosshair' : 'text';
+      });
+      
+      // Initial setup
+      canvas.style.cursor = 'crosshair';
+      window.addEventListener('resize', resizeCanvas);
+      setTimeout(resizeCanvas, 100); // Initial resize after DOM settles
+    })();
   </script>
   </html>
